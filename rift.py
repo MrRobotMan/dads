@@ -1,7 +1,20 @@
 import random
+import configparser
+
+import discord
+from discord.ext import commands
 
 
-def main():
+config = configparser.ConfigParser()
+config.read('env.ini')
+BOT_TOKEN = config['DISCORD']['BOT_TOKEN']
+client = discord.Client()
+bot = commands.Bot(command_prefix='!')
+
+
+@bot.command(name='team', help='Responds with two random teams')
+async def on_message(ctx):
+    response = ''
     champs = ['Ahri', 'Akali', 'Akshan', 'Alistar', 'Amumu', 'Annie', 'Ashe',
               'Aurelion Sol', 'Blitzcrank', 'Braum', 'Camille', 'Corki',
               'Darius', 'Diana', 'Dr. Mundo', 'Draven', 'Evelynn', 'Ezreal',
@@ -16,14 +29,13 @@ def main():
               'Xin Zhao', 'Yasuo', 'Zed', 'Ziggs']
     positions = ['Baron', 'Dragon', 'Jungle', 'Mid', 'Support']
     role_opts = ['AD', 'AP', 'Utility']
-    for side in ['A', 'B']:
+    for side in 'AB':
         team = random.sample(champs, 5)
         random.shuffle(positions)
         roles = [random.choice(role_opts) for _ in positions]
-        print(f'Side {side}')
-        [print(f'{roles[i]} {positions[i]} {champ}') for i, champ in enumerate(team)]
-        print()
+        squad = '\n'.join([f'>{roles[i]} {positions[i]} {champ}' for i, champ in enumerate(team)])
+        response += f'Side {side}\n{squad}\n\n'
 
+    await ctx.send(response)
 
-if __name__ == '__main__':
-    main()
+bot.run(BOT_TOKEN)
