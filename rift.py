@@ -27,14 +27,13 @@ async def on_message(ctx):
               'Soraka', 'Teemo', 'Thesh', 'Tristana', 'Tryndamere',
               'Twisted Fate', 'Varus', 'Vayne', 'Vi', 'Wukong', 'Xayah',
               'Xin Zhao', 'Yasuo', 'Zed', 'Ziggs']
-    positions = ['Baron', 'Dragon', 'Jungle', 'Mid', 'Support']
+    positions = ['Baron', 'Dragon', 'Mid', 'Jungle', 'Support']
     role_opts = ['AD', 'AP', 'Utility']
     for side in 'AB':
         team = random.sample(champs, 5)
-        random.shuffle(positions)
         roles = [random.choice(role_opts) for _ in positions]
-        squad = '\n'.join([f'>{roles[i]} {positions[i]} {champ}' for i, champ in enumerate(team)])
-        response += f'Side {side}\n{squad}\n\n'
+        squad = '\n'.join([f'> {roles[i]} {positions[i]} {champ}' for i, champ in enumerate(team)])
+        response += f'Side {side}\n{squad}\n'
 
     await ctx.send(response)
 
