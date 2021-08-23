@@ -1,14 +1,13 @@
 import random
 import configparser
 
-import discord
 from discord.ext import commands
 
 
 config = configparser.ConfigParser()
 config.read('env.ini')
 BOT_TOKEN = config['DISCORD']['BOT_TOKEN']
-client = discord.Client()
+
 bot = commands.Bot(command_prefix='!')
 
 
