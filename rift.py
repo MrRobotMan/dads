@@ -1,3 +1,4 @@
+import json
 import random
 import configparser
 
@@ -14,18 +15,8 @@ bot = commands.Bot(command_prefix='!')
 @bot.command(name='team', help='Responds with two random teams')
 async def on_message(ctx):
     response = ''
-    champs = ['Ahri', 'Akali', 'Akshan', 'Alistar', 'Amumu', 'Annie', 'Ashe',
-              'Aurelion Sol', 'Blitzcrank', 'Braum', 'Camille', 'Corki',
-              'Darius', 'Diana', 'Dr. Mundo', 'Draven', 'Evelynn', 'Ezreal',
-              'Fiora', 'Fizz', 'Galio', 'Garen', 'Gragas', 'Graves', 'Irelia',
-              'Janna', 'Jarvan IV', 'Jax', 'Jhin', 'Jinx', "Kai'Sa", 'Katarina',
-              'Kennen', "Kha'Zix", 'Lee Sin', 'Leona', 'Lucian', 'Lulu', 'Lux',
-              'Malphite', 'Master Yi', 'Miss Fortune', 'Nami', 'Nasus', 'Olaf',
-              'Orianna', 'Pantheon', 'Rakan', 'Renekton', 'Rammus', 'Rengar',
-              'Riven', 'Senna', 'Seraphine', 'Shyvana', 'Singed', 'Sona',
-              'Soraka', 'Teemo', 'Thesh', 'Tristana', 'Tryndamere',
-              'Twisted Fate', 'Varus', 'Vayne', 'Vi', 'Wukong', 'Xayah',
-              'Xin Zhao', 'Yasuo', 'Zed', 'Ziggs']
+    with open('champs.json') as f:
+        champs = json.load(f)
     positions = ['Baron', 'Dragon', 'Mid', 'Jungle', 'Support']
     role_opts = ['AD', 'AP', 'Utility']
     for side in 'AB':
