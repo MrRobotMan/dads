@@ -1,231 +1,447 @@
 {
-  "Ahri": [
-    "Mid"
-  ],
-  "Akali": [
-    "Mid",
-    "Solo"
-  ],
-  "Akshan": [
-    "Mid"
-  ],
-  "Alistar": [
-    "Support"
-  ],
-  "Amumu": [
-    "Jungle"
-  ],
-  "Annie": [
-    "Mid"
-  ],
-  "Ashe": [
-    "Duo"
-  ],
-  "Aurelion Sol": [
-    "Mid"
-  ],
-  "Blitzcrank": [
-    "Support"
-  ],
-  "Braum": [
-    "Support"
-  ],
-  "Camille": [
-    "Solo",
-    "Jungle"
-  ],
-  "Corki": [
-    "Mid",
-    "Duo"
-  ],
-  "Darius": [
-    "Solo"
-  ],
-  "Diana": [
-    "Mid"
-  ],
-  "Dr. Mundo": [
-    "Jungle"
-  ],
-  "Draven": [
-    "Duo"
-  ],
-  "Evelynn": [
-    "Jungle"
-  ],
-  "Ezreal": [
-    "Duo"
-  ],
-  "Fiora": [
-    "Solo"
-  ],
-  "Fizz": [
-    "Mid"
-  ],
-  "Galio": [
-    "Mid",
-    "Support"
-  ],
-  "Garen": [
-    "Solo"
-  ],
-  "Gragas": [
-    "Solo"
-  ],
-  "Graves": [
-    "Jungle",
-    "Solo"
-  ],
-  "Irelia": [
-    "Mid",
-    "Solo"
-  ],
-  "Janna": [
-    "Support"
-  ],
-  "Jarvan Iv": [
-    "Jungle"
-  ],
-  "Jax": [
-    "Solo"
-  ],
-  "Jhin": [
-    "Duo"
-  ],
-  "Jinx": [
-    "Duo"
-  ],
-  "Kai'Sa": [
-    "Duo"
-  ],
-  "Katarina": [
-    "Mid"
-  ],
-  "Kennen": [
-    "Solo"
-  ],
-  "Kha'Zix": [
-    "Jungle"
-  ],
-  "Lee Sin": [
-    "Jungle"
-  ],
-  "Leona": [
-    "Support"
-  ],
-  "Lucian": [
-    "Mid",
-    "Duo"
-  ],
-  "Lulu": [
-    "Support"
-  ],
-  "Lux": [
-    "Support",
-    "Mid"
-  ],
-  "Malphite": [
-    "Solo"
-  ],
-  "Master Yi": [
-    "Jungle"
-  ],
-  "Miss Fortune": [
-    "Duo"
-  ],
-  "Nami": [
-    "Support"
-  ],
-  "Nasus": [
-    "Solo"
-  ],
-  "Olaf": [
-    "Jungle"
-  ],
-  "Orianna": [
-    "Mid"
-  ],
-  "Pantheon": [
-    "Solo",
-    "Jungle"
-  ],
-  "Rakan": [
-    "Support"
-  ],
-  "Renekton": [
-    "Solo",
-    "Mid"
-  ],
-  "Rammus": [
-    "Jungle"
-  ],
-  "Rengar": [
-    "Jungle"
-  ],
-  "Riven": [
-    "Solo"
-  ],
-  "Senna": [
-    "Support",
-    "Duo"
-  ],
-  "Seraphine": [
-    "Support",
-    "Mid"
-  ],
-  "Shyvana": [
-    "Jungle"
-  ],
-  "Singed": [
-    "Solo"
-  ],
-  "Sona": [
-    "Support"
-  ],
-  "Soraka": [
-    "Support"
-  ],
-  "Teemo": [
-    "Solo"
-  ],
-  "Tristana": [
-    "Duo"
-  ],
-  "Tryndamere": [
-    "Jungle"
-  ],
-  "Twisted Fate": [
-    "Mid"
-  ],
-  "Varus": [
-    "Duo"
-  ],
-  "Vayne": [
-    "Duo"
-  ],
-  "Vi": [
-    "Jungle"
-  ],
-  "Wukong": [
-    "Jungle",
-    "Solo"
-  ],
-  "Xayah": [
-    "Duo"
-  ],
-  "Xin Zhao": [
-    "Jungle"
-  ],
-  "Yasuo": [
-    "Mid"
-  ],
-  "Zed": [
-    "Mid"
-  ],
-  "Ziggs": [
-    "Mid"
-  ],
-  "Thresh": [
-    "Support"
-  ]
+  "Ahri": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Akali": {
+    "positions": [
+      "Mid",
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Akshan": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Alistar": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Amumu": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Annie": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Ashe": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Aurelion Sol": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Blitzcrank": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Braum": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Camille": {
+    "positions": [
+      "Baron",
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Corki": {
+    "positions": [
+      "Mid",
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Darius": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Diana": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Dr. Mundo": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Draven": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Evelynn": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Ezreal": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Fiora": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Fizz": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Galio": {
+    "positions": [
+      "Mid",
+      "Support"
+    ],
+    "builds": []
+  },
+  "Garen": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Gragas": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Graves": {
+    "positions": [
+      "Jungle",
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Irelia": {
+    "positions": [
+      "Mid",
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Janna": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Jarvan Iv": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Jax": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Jhin": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Jinx": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Kai'Sa": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Katarina": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Kennen": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Kha'Zix": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Lee Sin": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Leona": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Lucian": {
+    "positions": [
+      "Mid",
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Lulu": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Lux": {
+    "positions": [
+      "Support",
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Malphite": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Master Yi": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Miss Fortune": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Nami": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Nasus": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Olaf": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Orianna": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Pantheon": {
+    "positions": [
+      "Baron",
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Rakan": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Renekton": {
+    "positions": [
+      "Baron",
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Rammus": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Rengar": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Riven": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Senna": {
+    "positions": [
+      "Support",
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Seraphine": {
+    "positions": [
+      "Support",
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Shyvana": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Singed": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Sona": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Soraka": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  },
+  "Teemo": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Tristana": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Tryndamere": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Twisted Fate": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Varus": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Vayne": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Vi": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Wukong": {
+    "positions": [
+      "Jungle",
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Xayah": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Xin Zhao": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Yasuo": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Zed": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Ziggs": {
+    "positions": [
+      "Mid"
+    ],
+    "builds": []
+  },
+  "Thresh": {
+    "positions": [
+      "Support"
+    ],
+    "builds": []
+  }
 }
