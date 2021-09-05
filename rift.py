@@ -10,10 +10,12 @@ BOT_TOKEN = config['DISCORD']['BOT_TOKEN']
 
 bot = commands.Bot(command_prefix='!')
 
+with open('champs.json') as f:
+    champs_data = json.load(f)
+champs = champs_data.keys()
+
 
 def make_team():
-    with open('champs.json') as f:
-        champs = json.load(f)
     positions = ['Baron', 'Dragon', 'Mid', 'Jungle', 'Support']
     role_opts = ['AD', 'AP', 'Utility']
     team = random.sample(champs, 5)
