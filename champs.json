@@ -1,74 +1,231 @@
 {
-  "Ahri": [],
-  "Akali": [],
-  "Akshan": [],
-  "Alistar": [],
-  "Amumu": [],
-  "Annie": [],
-  "Ashe": [],
-  "Aurelion Sol": [],
-  "Blitzcrank": [],
-  "Braum": [],
-  "Camille": ["Baron"],
-  "Corki": [],
-  "Darius": ["Baron"],
-  "Diana": [],
-  "Dr. Mundo": [],
-  "Draven": [],
-  "Evelynn": [],
-  "Ezreal": [],
-  "Fiora": ["Baron", "Jungle"],
-  "Fizz": [],
-  "Galio": [],
-  "Garen": ["Baron"],
-  "Gragas": ["Baron"],
-  "Graves": [],
-  "Irelia": [],
-  "Janna": [],
-  "Jarvan IV": [],
-  "Jax": [],
-  "Jhin": [],
-  "Jinx": [],
-  "Kai'Sa": [],
-  "Katarina": [],
-  "Kennen": [],
-  "Kha'Zix": [],
-  "Lee Sin": [],
-  "Leona": [],
-  "Lucian": [],
-  "Lulu": [],
-  "Lux": [],
-  "Malphite": ["Baron"],
-  "Master Yi": [],
-  "Miss Fortune": [],
-  "Nami": [],
-  "Nasus": [],
-  "Olaf": [],
-  "Orianna": [],
-  "Pantheon": [],
-  "Rakan": [],
-  "Renekton": ["Baron"],
-  "Rammus": [],
-  "Rengar": [],
-  "Riven": [],
-  "Senna": [],
-  "Seraphine": [],
-  "Shyvana": [],
-  "Singed": [],
-  "Sona": [],
-  "Soraka": [],
-  "Teemo": [],
-  "Thesh": [],
-  "Tristana": [],
-  "Tryndamere": [],
-  "Twisted Fate": [],
-  "Varus": [],
-  "Vayne": [],
-  "Vi": [],
-  "Wukong": [],
-  "Xayah": [],
-  "Xin Zhao": [],
-  "Yasuo": [],
-  "Zed": [],
-  "Ziggs": []
+  "Ahri": [
+    "Mid"
+  ],
+  "Akali": [
+    "Mid",
+    "Solo"
+  ],
+  "Akshan": [
+    "Mid"
+  ],
+  "Alistar": [
+    "Support"
+  ],
+  "Amumu": [
+    "Jungle"
+  ],
+  "Annie": [
+    "Mid"
+  ],
+  "Ashe": [
+    "Duo"
+  ],
+  "Aurelion Sol": [
+    "Mid"
+  ],
+  "Blitzcrank": [
+    "Support"
+  ],
+  "Braum": [
+    "Support"
+  ],
+  "Camille": [
+    "Solo",
+    "Jungle"
+  ],
+  "Corki": [
+    "Mid",
+    "Duo"
+  ],
+  "Darius": [
+    "Solo"
+  ],
+  "Diana": [
+    "Mid"
+  ],
+  "Dr. Mundo": [
+    "Jungle"
+  ],
+  "Draven": [
+    "Duo"
+  ],
+  "Evelynn": [
+    "Jungle"
+  ],
+  "Ezreal": [
+    "Duo"
+  ],
+  "Fiora": [
+    "Solo"
+  ],
+  "Fizz": [
+    "Mid"
+  ],
+  "Galio": [
+    "Mid",
+    "Support"
+  ],
+  "Garen": [
+    "Solo"
+  ],
+  "Gragas": [
+    "Solo"
+  ],
+  "Graves": [
+    "Jungle",
+    "Solo"
+  ],
+  "Irelia": [
+    "Mid",
+    "Solo"
+  ],
+  "Janna": [
+    "Support"
+  ],
+  "Jarvan Iv": [
+    "Jungle"
+  ],
+  "Jax": [
+    "Solo"
+  ],
+  "Jhin": [
+    "Duo"
+  ],
+  "Jinx": [
+    "Duo"
+  ],
+  "Kai'Sa": [
+    "Duo"
+  ],
+  "Katarina": [
+    "Mid"
+  ],
+  "Kennen": [
+    "Solo"
+  ],
+  "Kha'Zix": [
+    "Jungle"
+  ],
+  "Lee Sin": [
+    "Jungle"
+  ],
+  "Leona": [
+    "Support"
+  ],
+  "Lucian": [
+    "Mid",
+    "Duo"
+  ],
+  "Lulu": [
+    "Support"
+  ],
+  "Lux": [
+    "Support",
+    "Mid"
+  ],
+  "Malphite": [
+    "Solo"
+  ],
+  "Master Yi": [
+    "Jungle"
+  ],
+  "Miss Fortune": [
+    "Duo"
+  ],
+  "Nami": [
+    "Support"
+  ],
+  "Nasus": [
+    "Solo"
+  ],
+  "Olaf": [
+    "Jungle"
+  ],
+  "Orianna": [
+    "Mid"
+  ],
+  "Pantheon": [
+    "Solo",
+    "Jungle"
+  ],
+  "Rakan": [
+    "Support"
+  ],
+  "Renekton": [
+    "Solo",
+    "Mid"
+  ],
+  "Rammus": [
+    "Jungle"
+  ],
+  "Rengar": [
+    "Jungle"
+  ],
+  "Riven": [
+    "Solo"
+  ],
+  "Senna": [
+    "Support",
+    "Duo"
+  ],
+  "Seraphine": [
+    "Support",
+    "Mid"
+  ],
+  "Shyvana": [
+    "Jungle"
+  ],
+  "Singed": [
+    "Solo"
+  ],
+  "Sona": [
+    "Support"
+  ],
+  "Soraka": [
+    "Support"
+  ],
+  "Teemo": [
+    "Solo"
+  ],
+  "Tristana": [
+    "Duo"
+  ],
+  "Tryndamere": [
+    "Jungle"
+  ],
+  "Twisted Fate": [
+    "Mid"
+  ],
+  "Varus": [
+    "Duo"
+  ],
+  "Vayne": [
+    "Duo"
+  ],
+  "Vi": [
+    "Jungle"
+  ],
+  "Wukong": [
+    "Jungle",
+    "Solo"
+  ],
+  "Xayah": [
+    "Duo"
+  ],
+  "Xin Zhao": [
+    "Jungle"
+  ],
+  "Yasuo": [
+    "Mid"
+  ],
+  "Zed": [
+    "Mid"
+  ],
+  "Ziggs": [
+    "Mid"
+  ],
+  "Thresh": [
+    "Support"
+  ]
 }
