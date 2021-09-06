@@ -45,14 +45,14 @@ def make_team(champ_positions: dict) -> list:
 def make_chaos(champs: list) -> list:
     """
     Get a fully random ream of 5 champs. They will get randomly assigned
-    to AD / AP / Utility as well as positions.
+    to AD / AP / Tank as well as positions.
 
     >>> random.seed(1)
     >>> make_chaos(sorted(get_champs()[0]))
-    ['AP Baron Ezreal', 'AP Dragon Blitzcrank', 'Utility Mid Kennen', 'AP Jungle Draven', 'AD Support Varus']
+    ['AP Baron Ezreal', 'AP Dragon Blitzcrank', 'Tank Mid Kennen', 'AP Jungle Draven', 'AD Support Varus']
     """
     positions = ['Baron', 'Dragon', 'Mid', 'Jungle', 'Support']
-    build_opts = ['AD', 'AP', 'Utility']
+    build_opts = ['AD', 'AP', 'Tank']
     team = random.sample(champs, 5)
     builds = [random.choice(build_opts) for _ in positions]
     return [f'{builds[i]} {positions[i]} {champ}' for i, champ in enumerate(team)]
