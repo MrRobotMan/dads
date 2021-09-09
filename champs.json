@@ -54,6 +54,13 @@
     ],
     "builds": []
   },
+  "Brand": {
+    "positions": [
+      "Mid",
+      "Support"
+    ],
+    "builds": []
+  },
   "Braum": {
     "positions": [
       "Support"
@@ -82,7 +89,8 @@
   },
   "Diana": {
     "positions": [
-      "Mid"
+      "Mid",
+      "Baron"
     ],
     "builds": []
   },
@@ -268,6 +276,12 @@
   "Nasus": {
     "positions": [
       "Baron"
+    ],
+    "builds": []
+  },
+  "Nunu & Willump": {
+    "positions": [
+      "Jungle"
     ],
     "builds": []
   },
