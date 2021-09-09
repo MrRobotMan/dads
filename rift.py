@@ -11,7 +11,8 @@ def get_champs() -> tuple[dict, defaultdict]:
     Read in the data on the champions
 
     >>> get_champs() # doctest: +ELLIPSIS
-    ({'Ahri': {'positions': ['Mid'], 'builds': []}, ...}, defaultdict(<class 'list'>, {'Mid': ['Ahri', ...], 'Baron': ['Akali', ...], ...}))
+    ({'Ahri': {'positions': ['Mid'], 'builds': []}, ...}, \
+defaultdict(<class 'list'>, {'Mid': ['Ahri', ...], 'Baron': ['Akali', ...], ...}))
     """
     with open('champs.json') as f:
         champs_data = json.load(f)
@@ -30,8 +31,12 @@ def make_team(champ_positions: dict) -> list:
     Get a random team of 5 champs based on where they normally play.
 
     >>> random.seed(1)
-    >>> make_team(get_champs()[1])
-    ['Mid Aurelion Sol', 'Baron Darius', 'Support Janna', 'Jungle Evelynn', 'Dragon Lucian']
+    >>> make_team({'Mid': ['Aurelion Sol', 'Orianna'], \
+'Baron': ['Darius', 'Riven'], \
+'Support': ['Janna', 'Senna'], \
+'Jungle': ['Evelynn', 'Rengar'], \
+'Dragon': ['Lucian', 'Jinx']})
+    ['Mid Aurelion Sol', 'Baron Darius', 'Support Senna', 'Jungle Evelynn', 'Dragon Jinx']
     """
     team = []
     for position, champs in champ_positions.items():
@@ -48,8 +53,8 @@ def make_chaos(champs: list) -> list:
     to AD / AP / Tank as well as positions.
 
     >>> random.seed(1)
-    >>> make_chaos(sorted(get_champs()[0]))
-    ['AP Baron Ezreal', 'AP Dragon Blitzcrank', 'Tank Mid Kennen', 'AP Jungle Draven', 'AD Support Varus']
+    >>> make_chaos(['Aurelion Sol', 'Darius', 'Janna', 'Evelynn', 'Lucian', 'Ezreal', 'Blitzcrank', 'Kennen', 'Draven', 'Varus'])
+    ['AP Baron Janna', 'AP Dragon Darius', 'Tank Mid Lucian', 'AP Jungle Aurelion Sol', 'AD Support Evelynn']
     """
     positions = ['Baron', 'Dragon', 'Mid', 'Jungle', 'Support']
     build_opts = ['AD', 'AP', 'Tank']
