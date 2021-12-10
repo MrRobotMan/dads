@@ -279,7 +279,7 @@
     ],
     "builds": []
   },
-  "Nunu & Willump": {
+  "Nunu": {
     "positions": [
       "Jungle"
     ],
@@ -454,7 +454,34 @@
   },
   "Thresh": {
     "positions": [
-      "Support"
+      "Support",
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Jayce": {
+    "positions": [
+      "Baron",
+      "Jungle"
+    ],
+    "builds": []
+  },
+  "Caitlyn": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
+  "Kayle": {
+    "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Morgana": {
+    "positions": [
+      "Support",
+      "Jungle"
     ],
     "builds": []
   }
