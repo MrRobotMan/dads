@@ -67,6 +67,12 @@
     ],
     "builds": []
   },
+  "Caitlyn": {
+    "positions": [
+      "Dragon"
+    ],
+    "builds": []
+  },
   "Camille": {
     "positions": [
       "Baron",
@@ -181,6 +187,13 @@
     ],
     "builds": []
   },
+  "Jayce": {
+    "positions": [
+      "Baron",
+      "Jungle"
+    ],
+    "builds": []
+  },
   "Jhin": {
     "positions": [
       "Dragon"
@@ -202,6 +215,12 @@
   "Katarina": {
     "positions": [
       "Mid"
+    ],
+    "builds": []
+  },
+  "Kayle": {
+    "positions": [
+      "Baron"
     ],
     "builds": []
   },
@@ -267,6 +286,13 @@
     ],
     "builds": []
   },
+  "Morgana": {
+    "positions": [
+      "Support",
+      "Jungle"
+    ],
+    "builds": []
+  },
   "Nami": {
     "positions": [
       "Support"
@@ -310,16 +336,16 @@
     ],
     "builds": []
   },
+  "Rammus": {
+    "positions": [
+      "Jungle"
+    ],
+    "builds": []
+  },
   "Renekton": {
     "positions": [
       "Baron",
       "Mid"
-    ],
-    "builds": []
-  },
-  "Rammus": {
-    "positions": [
-      "Jungle"
     ],
     "builds": []
   },
@@ -375,6 +401,13 @@
   },
   "Teemo": {
     "positions": [
+      "Baron"
+    ],
+    "builds": []
+  },
+  "Thresh": {
+    "positions": [
+      "Support",
       "Baron"
     ],
     "builds": []
@@ -449,39 +482,6 @@
   "Ziggs": {
     "positions": [
       "Mid"
-    ],
-    "builds": []
-  },
-  "Thresh": {
-    "positions": [
-      "Support",
-      "Baron"
-    ],
-    "builds": []
-  },
-  "Jayce": {
-    "positions": [
-      "Baron",
-      "Jungle"
-    ],
-    "builds": []
-  },
-  "Caitlyn": {
-    "positions": [
-      "Dragon"
-    ],
-    "builds": []
-  },
-  "Kayle": {
-    "positions": [
-      "Baron"
-    ],
-    "builds": []
-  },
-  "Morgana": {
-    "positions": [
-      "Support",
-      "Jungle"
     ],
     "builds": []
   }
