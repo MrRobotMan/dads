@@ -1,22 +1,42 @@
 {
-  "Ahri": "Mid",
+  "Ahri": [
+    "Mid"
+  ],
   "Akali": [
     "Mid",
     "Baron"
   ],
-  "Akshan": "Mid",
-  "Alistar": "Support",
-  "Amumu": "Jungle",
-  "Annie": "Mid",
-  "Ashe": "Dragon",
-  "Aurelion Sol": "Mid",
-  "Blitzcrank": "Support",
+  "Akshan": [
+    "Mid"
+  ],
+  "Alistar": [
+    "Support"
+  ],
+  "Amumu": [
+    "Jungle"
+  ],
+  "Annie": [
+    "Mid"
+  ],
+  "Ashe": [
+    "Dragon"
+  ],
+  "Aurelion Sol": [
+    "Mid"
+  ],
+  "Blitzcrank": [
+    "Support"
+  ],
   "Brand": [
     "Mid",
     "Support"
   ],
-  "Braum": "Support",
-  "Caitlyn": "Dragon",
+  "Braum": [
+    "Support"
+  ],
+  "Caitlyn": [
+    "Dragon"
+  ],
   "Camille": [
     "Baron",
     "Jungle"
@@ -25,7 +45,9 @@
     "Mid",
     "Dragon"
   ],
-  "Darius": "Baron",
+  "Darius": [
+    "Baron"
+  ],
   "Diana": [
     "Mid",
     "Baron",
@@ -35,17 +57,31 @@
     "Baron",
     "Jungle"
   ],
-  "Draven": "Dragon",
-  "Evelynn": "Jungle",
-  "Ezreal": "Dragon",
-  "Fiora": "Baron",
-  "Fizz": "Mid",
+  "Draven": [
+    "Dragon"
+  ],
+  "Evelynn": [
+    "Jungle"
+  ],
+  "Ezreal": [
+    "Dragon"
+  ],
+  "Fiora": [
+    "Baron"
+  ],
+  "Fizz": [
+    "Mid"
+  ],
   "Galio": [
     "Mid",
     "Support"
   ],
-  "Garen": "Baron",
-  "Gragas": "Baron",
+  "Garen": [
+    "Baron"
+  ],
+  "Gragas": [
+    "Baron"
+  ],
   "Graves": [
     "Jungle",
     "Baron"
@@ -54,17 +90,29 @@
     "Mid",
     "Baron"
   ],
-  "Janna": "Support",
-  "Jarvan IV": "Jungle",
-  "Jax": "Baron",
+  "Janna": [
+    "Support"
+  ],
+  "Jarvan IV": [
+    "Jungle"
+  ],
+  "Jax": [
+    "Baron"
+  ],
   "Jayce": [
     "Baron",
     "Jungle",
     "Mid"
   ],
-  "Jhin": "Dragon",
-  "Jinx": "Dragon",
-  "Kai'Sa": "Dragon",
+  "Jhin": [
+    "Dragon"
+  ],
+  "Jinx": [
+    "Dragon"
+  ],
+  "Kai'Sa": [
+    "Dragon"
+  ],
   "Karma": [
     "Mid",
     "Support"
@@ -72,17 +120,31 @@
   "Kassadin": [
     "Mid"
   ],
-  "Katarina": "Mid",
-  "Kayle": "Baron",
-  "Kennen": "Baron",
-  "Kha'Zix": "Jungle",
-  "Lee Sin": "Jungle",
-  "Leona": "Support",
+  "Katarina": [
+    "Mid"
+  ],
+  "Kayle": [
+    "Baron"
+  ],
+  "Kennen": [
+    "Baron"
+  ],
+  "Kha'Zix": [
+    "Jungle"
+  ],
+  "Lee Sin": [
+    "Jungle"
+  ],
+  "Leona": [
+    "Support"
+  ],
   "Lucian": [
     "Mid",
     "Dragon"
   ],
-  "Lulu": "Support",
+  "Lulu": [
+    "Support"
+  ],
   "Lux": [
     "Support",
     "Mid"
@@ -91,23 +153,37 @@
     "Baron",
     "Support"
   ],
-  "Master Yi": "Jungle",
-  "Miss Fortune": "Dragon",
+  "Master Yi": [
+    "Jungle"
+  ],
+  "Miss Fortune": [
+    "Dragon"
+  ],
   "Morgana": [
     "Support",
     "Mid",
     "Jungle"
   ],
-  "Nami": "Support",
-  "Nasus": "Baron",
+  "Nami": [
+    "Support"
+  ],
+  "Nasus": [
+    "Baron"
+  ],
   "Nautilus": [
     "Baron",
     "Jungle",
     "Support"
   ],
-  "Nunu": "Jungle",
-  "Olaf": "Jungle",
-  "Orianna": "Mid",
+  "Nunu": [
+    "Jungle"
+  ],
+  "Olaf": [
+    "Jungle"
+  ],
+  "Orianna": [
+    "Mid"
+  ],
   "Pantheon": [
     "Baron",
     "Jungle",
@@ -119,14 +195,22 @@
     "Support",
     "Mid"
   ],
-  "Rakan": "Support",
-  "Rammus": "Jungle",
+  "Rakan": [
+    "Support"
+  ],
+  "Rammus": [
+    "Jungle"
+  ],
   "Renekton": [
     "Baron",
     "Jungle"
   ],
-  "Rengar": "Jungle",
-  "Riven": "Baron",
+  "Rengar": [
+    "Jungle"
+  ],
+  "Riven": [
+    "Baron"
+  ],
   "Senna": [
     "Support",
     "Dragon"
@@ -139,35 +223,67 @@
     "Baron",
     "Jungle"
   ],
-  "Shyvana": "Jungle",
-  "Singed": "Baron",
-  "Sona": "Support",
-  "Soraka": "Support",
-  "Teemo": "Baron",
+  "Shyvana": [
+    "Jungle"
+  ],
+  "Singed": [
+    "Baron"
+  ],
+  "Sona": [
+    "Support"
+  ],
+  "Soraka": [
+    "Support"
+  ],
+  "Teemo": [
+    "Baron"
+  ],
   "Thresh": [
     "Support",
     "Baron"
   ],
-  "Tristana": "Dragon",
-  "Tryndamere": "Jungle",
-  "Twisted Fate": "Mid",
-  "Varus": "Dragon",
-  "Vayne": "Dragon",
+  "Tristana": [
+    "Dragon"
+  ],
+  "Tryndamere": [
+    "Jungle"
+  ],
+  "Twisted Fate": [
+    "Mid"
+  ],
+  "Varus": [
+    "Dragon"
+  ],
+  "Vayne": [
+    "Dragon"
+  ],
   "Veigar": [
     "Mid"
   ],
-  "Vi": "Jungle",
+  "Vi": [
+    "Jungle"
+  ],
   "Wukong": [
     "Jungle",
     "Baron"
   ],
-  "Xayah": "Dragon",
-  "Xin Zhao": "Jungle",
-  "Yasuo": "Mid",
+  "Xayah": [
+    "Dragon"
+  ],
+  "Xin Zhao": [
+    "Jungle"
+  ],
+  "Yasuo": [
+    "Mid"
+  ],
   "Yuumi": [
     "Support",
     "Baron"
   ],
-  "Zed": "Mid",
-  "Ziggs": "Mid"
+  "Zed": [
+    "Mid"
+  ],
+  "Ziggs": [
+    "Mid"
+  ]
 }
