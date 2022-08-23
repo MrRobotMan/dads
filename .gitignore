@@ -1,6 +1,5 @@
-.env/
+.venv/
 .vscode/
-.mypy_cache/
 __pycache__/
 env.ini
-pid.txt
+*.conf
