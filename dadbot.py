@@ -98,7 +98,7 @@ def main() -> None:
 
     champs, champ_positions = get_champs()
 
-    bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
+    bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context) -> None:
