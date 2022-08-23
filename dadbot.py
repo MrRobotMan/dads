@@ -1,6 +1,7 @@
 import configparser
 import datetime as dt
 import json
+import logging
 import random
 from collections import defaultdict
 from pathlib import Path
@@ -11,6 +12,8 @@ import discord.ext.commands as commands
 
 TIMEOUTS = Path("timeouts.json")
 CHAMPS = Path("champs.json")
+
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 
 
 def get_champs() -> tuple[list[str], DefaultDict[str, list[str]]]:
@@ -98,7 +101,8 @@ def main() -> None:
 
     champs, champ_positions = get_champs()
 
-    bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+    intents = discord.Intents(messages=True, members=True, message_content=True)
+    bot = commands.Bot(command_prefix="!", intents=intents)
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context) -> None:
@@ -172,7 +176,7 @@ def main() -> None:
         with TIMEOUTS.open("w+") as fp:
             json.dump(data, fp, indent=2)
 
-    bot.run(bot_token)
+    bot.run(bot_token, log_handler=handler)
 
 
 if __name__ == "__main__":
