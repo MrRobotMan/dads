@@ -1,5 +1,6 @@
 import configparser
 import datetime as dt
+import itertools
 import json
 import logging
 import random
@@ -91,6 +92,27 @@ def get_user_timeout_data(user: discord.Member) -> tuple[int, int]:
     return data.get(user.name, (0, 0))
 
 
+def get_timeout_leaderboard() -> tuple[str, str]:
+    """Return the most timed out people.
+
+    Returns:
+        tuple[list[tuple[int, str]]]: users and number of timeouts / total time.
+    """
+    with TIMEOUTS.open() as fs:
+        data: dict[discord.Member, tuple[int, int]] = json.load(fs)
+    reversed_data = {v: k for k, v in data.items()}
+    timed_out_qty = sorted(list(reversed_data.items()), key=lambda x: x[0][0])[:3]
+    timed_out_time = sorted(list(reversed_data.items()), key=lambda x: x[0][1])[:3]
+    longest_name = max(len(user.name) for user in data.keys())
+    most_timed_out = "\n".join(
+        f"{user[1].mention:{longest_name}} | {user[0][0]}" for user in timed_out_qty
+    )
+    longest_timed_out = "\n".join(
+        f"{user[1].mention:{longest_name}} | {user[0][1]}" for user in timed_out_time
+    )
+    return (most_timed_out, longest_timed_out)
+
+
 def main() -> None:
     """
     The main bot. Has commands for team, teams, and chaos.
@@ -146,14 +168,31 @@ def main() -> None:
         """
         How long the supplied users have been in jail.
         """
-        response: list[str] = []
-        for user in args:
-            timeouts, total_time = get_user_timeout_data(user)
-            hours, minutes = divmod(total_time, 3600)
-            minutes, seconds = divmod(minutes, 36)
-            response.append(
-                f"{user.mention} has been in timeout {timeouts} times for {hours}:{minutes}:{seconds}."
+        if args:
+            # Show a user or multiple users
+            response: list[str] = []
+            for user in args:
+                timeouts, total_time = get_user_timeout_data(user)
+                hours, minutes = divmod(total_time, 3600)
+                minutes, seconds = divmod(minutes, 36)
+                response.append(
+                    f"{user.mention} has been in timeout {timeouts} times for {hours}:{minutes}:{seconds}."
+                )
+        else:
+            # Show the leaderboard
+            leaderboard = get_timeout_leaderboard()
+            padding = max(
+                len(user) for user in itertools.chain(leaderboard[0], leaderboard[1])
             )
+            response = [
+                "Most timed out:",
+                "-" * padding,
+                leaderboard[0],
+                "-" * padding,
+                "Longest timed out:",
+                "-" * padding,
+                leaderboard[1],
+            ]
         await ctx.send("\n".join(response))
 
     @bot.event
