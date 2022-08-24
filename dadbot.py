@@ -1,12 +1,11 @@
 import configparser
 import datetime as dt
-import itertools
 import json
 import logging
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import DefaultDict, Optional
+from typing import Any, DefaultDict, Optional
 
 import discord
 import discord.ext.commands as commands
@@ -92,6 +91,22 @@ def get_user_timeout_data(user: discord.Member) -> tuple[int, int, str]:
     return data.get(user.name, (0, 0, user.name))
 
 
+def seconds_to_hms(total_seconds: int) -> str:
+    """Convert seconds to H:M:S
+
+    Args:
+        total_seconds (int): Total number of seconds
+
+    Returns:
+        str: hours:minutes:seconds
+    >>> seconds_to_hms(4340)
+    '1:12:20'
+    """
+    hours, minutes = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(minutes, 60)
+    return f"{hours}:{minutes}:{seconds}"
+
+
 def get_timeout_leaderboard() -> Optional[tuple[str, str]]:
     """Return the most timed out people.
 
@@ -110,7 +125,8 @@ def get_timeout_leaderboard() -> Optional[tuple[str, str]]:
         f"{user[1]:{longest_name}} | {user[0][0]}" for user in timed_out_qty
     )
     longest_timed_out = "\n".join(
-        f"{user[1]:{longest_name}} | {user[0][1]}" for user in timed_out_time
+        f"{user[1]:{longest_name}} | {seconds_to_hms(user[0][1])}"
+        for user in timed_out_time
     )
     return (most_timed_out, longest_timed_out)
 
@@ -133,14 +149,14 @@ def main() -> None:
     bot = commands.Bot(command_prefix="!", intents=intents)
 
     @bot.command(name="team", help="Responds with a random team")
-    async def on_message(ctx: commands.Context) -> None:
+    async def on_message(ctx: commands.Context[Any]) -> None:
         """
         (1) 5 champ team with roles based on where they normally play
         """
         await ctx.send("\n".join(make_team(champ_positions)))
 
     @bot.command(name="teams", help="Responds with two random teams")
-    async def on_message(ctx: commands.Context) -> None:
+    async def on_message(ctx: commands.Context[Any]) -> None:
         """
         (2) 5 champ teams with roles based on where they normally play
         """
@@ -155,7 +171,7 @@ def main() -> None:
         name="chaos",
         help="Responds with two fully random teams (positions and damage type).",
     )
-    async def on_message(ctx: commands.Context) -> None:
+    async def on_message(ctx: commands.Context[Any]) -> None:
         """
         (2) 5 champ teams with roles and builds fully random
         """
@@ -170,7 +186,7 @@ def main() -> None:
         name="jailtime",
         help="Get the total amount of time the user has spent in timeout.",
     )
-    async def on_message(ctx: commands.Context, *args: discord.Member) -> None:
+    async def on_message(ctx: commands.Context[Any], *args: discord.Member) -> None:
         """
         How long the supplied users have been in jail.
         """
@@ -179,19 +195,14 @@ def main() -> None:
             response: list[str] = []
             for user in args:
                 timeouts, total_time, _ = get_user_timeout_data(user)
-                hours, minutes = divmod(total_time, 3600)
-                minutes, seconds = divmod(minutes, 60)
                 response.append(
-                    f"{user.mention} has been in timeout {timeouts} times for {hours}:{minutes}:{seconds}."
+                    f"{user.mention} has been in timeout {timeouts} times for {seconds_to_hms(total_time)}."
                 )
         else:
             # Show the leaderboard
             leaderboard = get_timeout_leaderboard()
             if leaderboard:
-                padding = max(
-                    len(user)
-                    for user in itertools.chain(leaderboard[0], leaderboard[1])
-                )
+                padding = 20
                 response = [
                     "Most timed out:",
                     "-" * padding,
