@@ -1,14 +1,17 @@
+import asyncio
 import configparser
 import datetime as dt
 import json
 import logging
 import random
 from collections import defaultdict
+from dataclasses import dataclass
+from email import message
 from pathlib import Path
-from typing import Any, DefaultDict, Optional
+from typing import Any, DefaultDict, Iterator, Optional
 
 import discord
-import discord.ext.commands as commands
+from discord.ext import commands, tasks
 
 TIMEOUTS = Path("timeouts.json")
 CHAMPS = Path("champs.json")
@@ -131,6 +134,44 @@ def get_timeout_leaderboard() -> Optional[tuple[str, str]]:
     return (most_timed_out, longest_timed_out)
 
 
+def message_pyn() -> Iterator[str]:
+    """Ping PYN every hour on Thursdays until he posts the announcement.
+
+    Returns:
+        str: Message to PYN
+    """
+    messages = (
+        "Thursday",
+        "Did you know it's Thursday?",
+        "Still no Thursday announcement...",
+        "Hello? Thursday",
+    )
+    message_index = 0
+    while True:
+        yield messages[message_index]
+        message_index += 1
+        message_index %= len(messages)
+
+
+def next_week() -> float:
+    """Determine how long until next week's game night.
+
+    Returns:
+        int: Seconds to wait
+    """
+    now = dt.datetime.now()
+    end = (now + dt.timedelta(days=7)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    return (end - now).total_seconds()
+
+
+@dataclass(slots=True)
+class GameNight:
+    announcer: Optional[discord.User]
+    last_game_night_announced: Optional[dt.date] = None
+
+
 def main() -> None:
     """
     The main bot. Has commands for team, teams, and chaos.
@@ -138,6 +179,9 @@ def main() -> None:
     config = configparser.ConfigParser()
     config.read("env.ini")
     bot_token = config["DISCORD"]["BOT_TOKEN"]
+    announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
+    game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
+    game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
 
     champs, champ_positions = get_champs()
 
@@ -147,6 +191,10 @@ def main() -> None:
         message_content=True,
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
+
+    announcements_channel = bot.get_channel(announcements_channel_id)
+    game_night_channel = bot.get_channel(game_night_channel_id)
+    game_night = GameNight(bot.get_user(game_night_host_id))
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[Any]) -> None:
@@ -237,6 +285,33 @@ def main() -> None:
         )
         with TIMEOUTS.open("w+") as fp:
             json.dump(data, fp, indent=2)
+
+    @bot.listen("on_message")
+    async def game_night_announcement(message: discord.Message) -> None:
+        """Check if the game night announcement happened."""
+        if (
+            message.channel == announcements_channel
+            and "game night" in message.content.lower()
+        ):
+            game_night.last_game_night_announced = message.created_at.date()
+        await bot.process_commands(message)
+
+    @tasks.loop(hours=1)
+    async def did_pyn_accounce_gamenight() -> None:
+        """Ping PYN until he announces gamenight."""
+        if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
+            game_night_channel, discord.TextChannel
+        ):
+            return
+        if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
+            # is it Thursday at 7:00 am?
+            message = message_pyn()
+            while game_night.last_game_night_announced != today.date():
+                await game_night_channel.send(
+                    f"{game_night.announcer.mention} {next(message)}"
+                    if game_night.announcer
+                    else next(message)
+                )
 
     bot.run(bot_token, log_handler=handler)
 
