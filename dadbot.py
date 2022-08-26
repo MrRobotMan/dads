@@ -177,9 +177,9 @@ def main() -> None:
     config = configparser.ConfigParser()
     config.read("env.ini")
     bot_token = config["DISCORD"]["BOT_TOKEN"]
-    announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
-    game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
-    game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
+    # announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
+    # game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
+    # game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
 
     champs, champ_positions = get_champs()
 
@@ -190,9 +190,9 @@ def main() -> None:
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
 
-    announcements_channel = bot.get_channel(announcements_channel_id)
-    game_night_channel = bot.get_channel(game_night_channel_id)
-    game_night = GameNight(bot.get_user(game_night_host_id))
+    # announcements_channel = bot.get_channel(announcements_channel_id)
+    # game_night_channel = bot.get_channel(game_night_channel_id)
+    # game_night = GameNight(bot.get_user(game_night_host_id))
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[Any]) -> None:
@@ -284,32 +284,32 @@ def main() -> None:
         with TIMEOUTS.open("w+") as fp:
             json.dump(data, fp, indent=2)
 
-    @bot.listen("on_message")
-    async def game_night_announcement(message: discord.Message) -> None:
-        """Check if the game night announcement happened."""
-        if (
-            message.channel == announcements_channel
-            and "game night" in message.content.lower()
-        ):
-            game_night.last_game_night_announced = message.created_at.date()
-        await bot.process_commands(message)
+    # @bot.listen("on_message")
+    # async def game_night_announcement(message: discord.Message) -> None:
+    #     """Check if the game night announcement happened."""
+    #     if (
+    #         message.channel == announcements_channel
+    #         and "game night" in message.content.lower()
+    #     ):
+    #         game_night.last_game_night_announced = message.created_at.date()
+    #     await bot.process_commands(message)
 
-    @tasks.loop(hours=1)
-    async def did_pyn_accounce_gamenight() -> None:
-        """Ping PYN until he announces gamenight."""
-        if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
-            game_night_channel, discord.TextChannel
-        ):
-            return
-        if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
-            # is it Thursday at 7:00 am?
-            message = message_pyn()
-            while game_night.last_game_night_announced != today.date():
-                await game_night_channel.send(
-                    f"{game_night.announcer.mention} {next(message)}"
-                    if game_night.announcer
-                    else next(message)
-                )
+    # @tasks.loop(hours=1)
+    # async def did_pyn_accounce_gamenight() -> None:
+    #     """Ping PYN until he announces gamenight."""
+    #     if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
+    #         game_night_channel, discord.TextChannel
+    #     ):
+    #         return
+    #     if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
+    #         # is it Thursday at 7:00 am?
+    #         message = message_pyn()
+    #         while game_night.last_game_night_announced != today.date():
+    #             await game_night_channel.send(
+    #                 f"{game_night.announcer.mention} {next(message)}"
+    #                 if game_night.announcer
+    #                 else next(message)
+    #             )
 
     bot.run(bot_token, log_handler=handler)
 

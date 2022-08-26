@@ -2,5 +2,6 @@
 .vscode/
 __pycache__/
 env.ini
+timeouts.json
 *.conf
 *.log
