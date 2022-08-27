@@ -9,15 +9,21 @@ from pathlib import Path
 from typing import Any, DefaultDict, Iterator, Optional
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 PROJ_PATH = Path(__file__).parent
 TIMEOUTS = PROJ_PATH / "timeouts.json"
 CHAMPS = PROJ_PATH / "champs.json"
 INI = PROJ_PATH / "env.ini"
+TIMEOUT = dict[str, tuple[int, int, str | bool, str]]
 
 handler = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
+)
+logger = logging.getLogger("debug")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(
+    logging.FileHandler(filename=PROJ_PATH / "debug.log", encoding="utf-8", mode="w")
 )
 
 
@@ -82,21 +88,25 @@ def make_chaos(champs: list[str]) -> list[str]:
     return [f"{builds[i]} {positions[i]} {champ}" for i, champ in enumerate(team)]
 
 
-def get_user_timeout_data(user: discord.Member) -> tuple[int, int, str]:
+def get_user_timeout_data(
+    time: dt.datetime, data: tuple[int, int, str | bool, str]
+) -> tuple[int, float]:
     """Checks if the indicated user is in timeout
 
     Args:
-        user (discord.Member): User's name
-
+        time (dt.datetime): Time of the current check
+        data (tuple[int, int, str | bool, str]): Timeout data
     Returns:
         tuple[int, int]: Number of times in timeout and duration (seconds)
     """
-    with TIMEOUTS.open() as fp:
-        data: dict[str, tuple[int, int, str]] = json.load(fp)
-    return data.get(user.name, (0, 0, user.name))
+    if isinstance(data[3], bool):
+        # Not in timeout.
+        return (data[0], data[1])
+    latest_in_timeout = dt.datetime.strptime(data[3], "%Y-%m-%d, %H:%M:%S")
+    return (data[0], data[1] + (time - latest_in_timeout).total_seconds())
 
 
-def seconds_to_hms(total_seconds: int) -> str:
+def seconds_to_hms(total_seconds: float) -> str:
     """Convert seconds to H:M:S
 
     Args:
@@ -112,19 +122,23 @@ def seconds_to_hms(total_seconds: int) -> str:
     return f"{hours}:{minutes}:{seconds}"
 
 
-def get_timeout_leaderboard() -> Optional[tuple[str, str]]:
+def get_timeout_leaderboard(
+    time: dt.datetime, data: Optional[TIMEOUT]
+) -> Optional[tuple[str, str]]:
     """Return the most timed out people.
+
+    Args:
+        time (dt.datetime): Time of the current check
+        data (dict[str, tuple[int, int, str | bool, str]]): Timeout data
 
     Returns:
         tuple[list[tuple[int, str]]]: users and number of timeouts / total time.
     """
-    with TIMEOUTS.open() as fs:
-        data: dict[str, tuple[int, int, str]] = json.load(fs)
     if not data:
         return None
-    reversed_data = {(v[0], v[1]): v[2] for v in data.values()}
-    timed_out_qty = sorted(list(reversed_data.items()), key=lambda x: x[0][0])[:3]
-    timed_out_time = sorted(list(reversed_data.items()), key=lambda x: x[0][1])[:3]
+    compiled = {get_user_timeout_data(time, v): v[3] for v in data.values()}
+    timed_out_qty = sorted(list(compiled.items()), key=lambda x: x[0][0])[:3]
+    timed_out_time = sorted(list(compiled.items()), key=lambda x: x[0][1])[:3]
     longest_name = max(len(user[2]) for user in data.values())
     most_timed_out = "\n".join(
         f"{user[1]:{longest_name}} | {user[0][0]}" for user in timed_out_qty
@@ -134,6 +148,53 @@ def get_timeout_leaderboard() -> Optional[tuple[str, str]]:
         for user in timed_out_time
     )
     return (most_timed_out, longest_timed_out)
+
+
+def entered_timeout(user: discord.Member, time: dt.datetime) -> None:
+    """Record the timeout into the log.
+
+    Args:
+        user (discord.Member): User in timeout
+        time (dt.datetime): Time of timeout
+    """
+    with TIMEOUTS.open() as fs:
+        data: TIMEOUT = json.load(fs)
+    existing = data.setdefault(user.name, (0, 0, True, user.display_name))
+    number_of_timeouts = existing[0] + 1
+    data[user.name] = (
+        number_of_timeouts,
+        existing[1],
+        time.strftime("%Y-%m-%d, %H:%M:%S"),
+        existing[3],
+    )
+    with TIMEOUTS.open("w+") as fs:
+        json.dump(data, fs, indent=2)
+
+
+def left_timeout(user: discord.Member, time: dt.datetime) -> None:
+    """Record the timeout into the log.
+
+    Args:
+        user (discord.Member): User no longer in timeout
+        time (dt.datetime): Time of timeout ending
+    """
+    with TIMEOUTS.open() as fs:
+        data: TIMEOUT = json.load(fs)
+    existing = data.setdefault(user.name, (0, 0, False, user.display_name))
+    duration = existing[1]
+    if isinstance(existing[3], bool):
+        logger.error(f"{user.display_name} left timeout when not in it.")
+    else:
+        last_put_in_timeout = dt.datetime.strptime(existing[3], "%Y-%m-%d, %H:%M:%S")
+        duration += (time - last_put_in_timeout).total_seconds()
+    data[user.name] = (
+        existing[0],
+        duration,
+        False,
+        existing[3],
+    )
+    with TIMEOUTS.open("w+") as fs:
+        json.dump(data, fs, indent=2)
 
 
 def message_pyn() -> Iterator[str]:
@@ -191,6 +252,7 @@ def main() -> None:
         messages=True,
         members=True,
         message_content=True,
+        guilds=True,
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -240,17 +302,21 @@ def main() -> None:
         """
         How long the supplied users have been in jail.
         """
+        now = dt.datetime.now(dt.timezone.utc)
+        with TIMEOUTS.open() as fs:
+            data: TIMEOUT = json.load(fs)
         if args:
             # Show a user or multiple users
             response: list[str] = []
             for user in args:
-                timeouts, total_time, _ = get_user_timeout_data(user)
+                found = data.get(user, (0, 0, False, user))
+                timeouts, total_time = get_user_timeout_data(now, found)
                 response.append(
                     f"{user.mention} has been in timeout {timeouts} times for {seconds_to_hms(total_time)}."
                 )
         else:
             # Show the leaderboard
-            leaderboard = get_timeout_leaderboard()
+            leaderboard = get_timeout_leaderboard(now, data)
             if leaderboard:
                 padding = 20
                 response = [
@@ -270,23 +336,25 @@ def main() -> None:
     async def on_member_update(before: discord.Member, after: discord.Member) -> None:
         """
         Update the stored dictionary of user timeouts.
-        Only takes action when changing from not in timeout to in timeout.
         """
+        logger.debug((before.display_name, before.roles, after.roles))
+
+        def check_for_timeout(roles: list[discord.Role]) -> bool:
+            for role in roles:
+                if role.id == 1012926842828759070:
+                    return True
+            return False
+
         now = dt.datetime.now(dt.timezone.utc)
-        if before.timed_out_until is not None:
+        before_timeout = check_for_timeout(before.roles)
+        after_timeout = check_for_timeout(after.roles)
+        if before_timeout == after_timeout:
+            # No change, do nothing.
             return
-        if (ending := after.timed_out_until) is None:
-            return
-        with TIMEOUTS.open() as fp:
-            data: dict[str, tuple[int, int, str]] = json.load(fp)
-        existing = data.setdefault(after.name, (0, 0, after.display_name))
-        data[after.name] = (
-            existing[0] + 1,
-            existing[1] + ((ending - now).seconds),
-            after.display_name,
-        )
-        with TIMEOUTS.open("w+") as fp:
-            json.dump(data, fp, indent=2)
+        if before_timeout:
+            entered_timeout(before, now)
+        else:
+            left_timeout(before, now)
 
     # @bot.listen("on_message")
     # async def game_night_announcement(message: discord.Message) -> None:
