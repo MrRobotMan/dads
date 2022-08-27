@@ -310,7 +310,7 @@ def main() -> None:
             # Show a user or multiple users
             response: list[str] = []
             for user in args:
-                found = data.get(user, (0, 0, False, user))
+                found = data.get(user.name, (0, 0, False, user.display_name))
                 timeouts, total_time = get_user_timeout_data(now, found)
                 response.append(
                     f"{user.mention} has been in timeout {timeouts} times for {seconds_to_hms(total_time)}."
