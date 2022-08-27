@@ -13,8 +13,11 @@ from discord.ext import commands, tasks
 
 TIMEOUTS = Path("timeouts.json")
 CHAMPS = Path("champs.json")
+PROJ_PATH = Path(__file__).parent
 
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler = logging.FileHandler(
+    filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
+)
 
 
 def get_champs() -> tuple[list[str], DefaultDict[str, list[str]]]:
