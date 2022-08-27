@@ -11,9 +11,10 @@ from typing import Any, DefaultDict, Iterator, Optional
 import discord
 from discord.ext import commands, tasks
 
-TIMEOUTS = Path("timeouts.json")
-CHAMPS = Path("champs.json")
 PROJ_PATH = Path(__file__).parent
+TIMEOUTS = PROJ_PATH / "timeouts.json"
+CHAMPS = PROJ_PATH / "champs.json"
+INI = PROJ_PATH / "env.ini"
 
 handler = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
@@ -178,7 +179,7 @@ def main() -> None:
     The main bot. Has commands for team, teams, and chaos.
     """
     config = configparser.ConfigParser()
-    config.read("env.ini")
+    config.read(INI)
     bot_token = config["DISCORD"]["BOT_TOKEN"]
     # announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
     # game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
