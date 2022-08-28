@@ -251,6 +251,24 @@ def get_user(guild: Optional[discord.Guild], user: int) -> str:
     return member.mention if (member := guild.get_member(user)) else "User not found"
 
 
+async def update_mistborn_leaderboard(member: discord.User | discord.Member) -> int:
+    """Update the mistborn leaderboard
+
+    Args:
+        member (discord.Member): User who made the mention.
+
+    Returns:
+        int: Number of mentions
+    """
+    with MIST.open() as fs:
+        data: dict[str, list[int]] = json.load(fs)
+    last_count, user_id = data.setdefault(member.name, [0, member.id])
+    data[member.name] = [last_count + 1, user_id]
+    with MIST.open("w") as fs:
+        json.dump(data, fs, indent=2)
+    return last_count + 1
+
+
 @dataclass(slots=True)
 class GameNight:
     announcer: Optional[discord.User]
@@ -417,12 +435,8 @@ def main() -> None:
             # Don't count when the command is called.
             return
         if "sanderson" in message or "mistborn" in message:
-            with MIST.open() as fs:
-                data: dict[str, list[int]] = json.load(fs)
-            last_count, user_id = data.setdefault(msg.author.name, [0, msg.author.id])
-            data[msg.author.name] = [last_count + 1, user_id]
-            with MIST.open("w") as fs:
-                json.dump(data, fs, indent=2)
+            mentions = await update_mistborn_leaderboard(msg.author)
+            await msg.channel.send(f"{msg.author.mention} has mentioned Mistborn or Sanderson {mentions} time(s).")
 
     # @bot.listen("on_message")
     # async def game_night_announcement(message: discord.Message) -> None:
