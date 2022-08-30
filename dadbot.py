@@ -431,12 +431,14 @@ def main() -> None:
         Args:
             msg (discord.Message): Message sent
         """
-        if (message := msg.content.lower()) == "!mistborn":
-            # Don't count when the command is called.
+        if (message := msg.content.lower()) == "!mistborn" or msg.author == bot.user:
+            # Don't count when the command is called or if the dadbot does it.
             return
         if "sanderson" in message or "mistborn" in message:
             mentions = await update_mistborn_leaderboard(msg.author)
-            await msg.channel.send(f"{msg.author.mention} has mentioned Mistborn or Sanderson {mentions} time(s).")
+            await msg.channel.send(
+                f"{msg.author.mention} has mentioned Mistborn or Sanderson {mentions} time(s)."
+            )
 
     # @bot.listen("on_message")
     # async def game_night_announcement(message: discord.Message) -> None:
