@@ -365,14 +365,14 @@ def main() -> None:
                 "Most timed out:",
                 "-" * padding,
                 "\n".join(
-                    f"{idx}: {user[0]} | {get_user(guild, user[1])}"
+                    f"{idx:2}: {user[0]:<4} | {get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[0], start=1)
                 ),
                 "-" * padding,
                 "Longest timed out:",
                 "-" * padding,
                 "\n".join(
-                    f"{idx}: {user[0]} | {get_user(guild, user[1])}"
+                    f"{idx:2}: {user[0]:<4} | {get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[1])
                 ),
             ]
@@ -397,7 +397,7 @@ def main() -> None:
 
         res = ["Mistbon / Sanderson Top 10 Leaderboard"]
         for idx, (mentions, user_id) in enumerate(leaderboard[:10], start=1):
-            res.append(f"{idx}: {mentions} | {get_user(guild, user_id)}")
+            res.append(f"{idx:2}: {mentions:<4} | {get_user(guild, user_id)}")
         await ctx.send("\n".join(res))
 
     @bot.event
