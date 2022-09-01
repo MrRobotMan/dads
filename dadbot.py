@@ -366,7 +366,7 @@ def main() -> None:
                 "-" * padding,
                 "\n".join(
                     f"{idx}: {user[0]} | {get_user(guild, user[1])}"
-                    for idx, user in enumerate(leaderboard[0])
+                    for idx, user in enumerate(leaderboard[0], start=1)
                 ),
                 "-" * padding,
                 "Longest timed out:",
