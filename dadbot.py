@@ -396,7 +396,7 @@ def main() -> None:
         guild = ctx.guild
 
         res = ["Mistbon / Sanderson leaderboard"]
-        for idx, (mentions, user_id) in enumerate(leaderboard):
+        for idx, (mentions, user_id) in enumerate(leaderboard, start=1):
             res.append(f"{idx}: {mentions} | {get_user(guild, user_id)}")
         await ctx.send("\n".join(res))
 
