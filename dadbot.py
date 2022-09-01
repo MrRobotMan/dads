@@ -418,7 +418,7 @@ def main() -> None:
         if before_timeout == after_timeout:
             # No change, do nothing.
             return
-        if before_timeout:
+        if after_timeout:
             await entered_timeout(before, now)
         else:
             await left_timeout(before, now)
