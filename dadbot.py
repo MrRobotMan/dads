@@ -360,7 +360,7 @@ def main() -> None:
         elif data is not None:
             # Show the leaderboard
             leaderboard = get_timeout_leaderboard(now, data)
-            padding = 20
+            padding = 30
             response = [
                 "Most timed out:",
                 "-" * padding,
@@ -395,7 +395,7 @@ def main() -> None:
         )
         guild = ctx.guild
 
-        res = ["Mistbon / Sanderson Top 10 Leaderboard"]
+        res = ["Mistborn / Sanderson Top 10 Leaderboard"]
         for idx, (mentions, user_id) in enumerate(leaderboard[:10], start=1):
             res.append(f"{idx:2}: {mentions:<4} | {get_user(guild, user_id)}")
         await ctx.send("\n".join(res))
