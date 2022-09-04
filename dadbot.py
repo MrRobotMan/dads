@@ -437,7 +437,7 @@ def main() -> None:
         if "sanderson" in message or "mistborn" in message:
             mentions = await update_mistborn_leaderboard(msg.author)
             await msg.channel.send(
-                f"{msg.author} has mentioned Mistborn or Sanderson {mentions} time(s)."
+                f"{msg.author.display_name} has mentioned Mistborn or Sanderson {mentions} time(s)."
             )
 
     # @bot.listen("on_message")
