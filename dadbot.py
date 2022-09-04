@@ -251,19 +251,21 @@ def get_user(guild: Optional[discord.Guild], user: int) -> str:
     return member.mention if (member := guild.get_member(user)) else "User not found"
 
 
-async def update_mistborn_leaderboard(member: discord.User | discord.Member) -> int:
+async def update_mistborn_leaderboard(
+    member: discord.User | discord.Member, mentions: int
+) -> int:
     """Update the mistborn leaderboard
 
     Args:
         member (discord.Member): User who made the mention.
-
+        mentions (int): Number of mentions in the message.
     Returns:
         int: Number of mentions
     """
     with MIST.open() as fs:
         data: dict[str, list[int]] = json.load(fs)
     last_count, user_id = data.setdefault(member.name, [0, member.id])
-    data[member.name] = [last_count + 1, user_id]
+    data[member.name] = [last_count + mentions, user_id]
     with MIST.open("w") as fs:
         json.dump(data, fs, indent=2)
     return last_count + 1
@@ -434,8 +436,8 @@ def main() -> None:
         if (message := msg.content.lower()) == "!mistborn" or msg.author == bot.user:
             # Don't count when the command is called or if the dadbot does it.
             return
-        if "sanderson" in message or "mistborn" in message:
-            mentions = await update_mistborn_leaderboard(msg.author)
+        if cnt := message.count("sanderson") + message.count("mistborn"):
+            mentions = await update_mistborn_leaderboard(msg.author, cnt)
             await msg.channel.send(
                 f"{msg.author.display_name} has mentioned Mistborn or Sanderson {mentions} time(s)."
             )
