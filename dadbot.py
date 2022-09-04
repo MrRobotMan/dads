@@ -244,11 +244,13 @@ def get_user(guild: Optional[discord.Guild], user: int) -> str:
         user (int): user id
 
     Returns:
-        str: mentionable string or plain string
+        str: User's display name or "user not found"
     """
     if not guild:
         return "User not found"
-    return member.mention if (member := guild.get_member(user)) else "User not found"
+    return (
+        member.display_name if (member := guild.get_member(user)) else "User not found"
+    )
 
 
 async def update_mistborn_leaderboard(
