@@ -17,6 +17,7 @@ MIST = PROJ_PATH / "mistborn.json"
 CHAMPS = PROJ_PATH / "champs.json"
 INI = PROJ_PATH / "env.ini"
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
+MISTBORN = dt.timedelta(minutes=10)
 
 handler = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
@@ -291,6 +292,7 @@ def main() -> None:
     # game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
 
     champs, champ_positions = get_champs()
+    sanderson_messages: dict[int, dt.datetime] = {}  # int is channel id
 
     intents = discord.Intents(
         messages=True,
@@ -440,9 +442,15 @@ def main() -> None:
             return
         if cnt := message.count("sanderson") + message.count("mistborn"):
             mentions = await update_mistborn_leaderboard(msg.author, cnt)
-            await msg.channel.send(
+            last_response = sanderson_messages.get(msg.channel.id)
+            if (
+                last_response := sanderson_messages.get(msg.channel.id)
+            ) and dt.datetime.now(tz=dt.timezone.utc) - last_response < MISTBORN:
+                return
+            response = await msg.channel.send(
                 f"{msg.author.display_name} has mentioned Mistborn or Sanderson {mentions} time(s)."
             )
+            sanderson_messages[msg.channel.id] = response.created_at
 
     # @bot.listen("on_message")
     # async def game_night_announcement(message: discord.Message) -> None:
