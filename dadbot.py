@@ -141,7 +141,6 @@ def get_timeout_leaderboard(
         (*get_user_timeout_data(time, v), idx): v[3]
         for idx, v in enumerate(data.values())
     }
-    logger.debug(compiled)
     most_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][0])[:3]
     longest_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][1])[:3]
     # most_timed_out = "\n".join(
@@ -378,7 +377,7 @@ def main() -> None:
                 "Longest timed out:",
                 "-" * padding,
                 "\n".join(
-                    f"{idx:2}: {user[0]:<4} | {get_user(guild, user[1])}"
+                    f"{idx:2}: {seconds_to_hms(user[0])} | {get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[1])
                 ),
             ]
