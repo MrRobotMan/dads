@@ -141,19 +141,11 @@ def get_timeout_leaderboard(
         (*get_user_timeout_data(time, v), idx): v[3]
         for idx, v in enumerate(data.values())
     }
-    most_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][0])[:3]
-    longest_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][1])[:3]
-    # most_timed_out = "\n".join(
-    #     f"{idx}: | {user[0][0]} | {user[1]}"
-    #     for idx, user in enumerate(timed_out_qty)
-    # )
-    # longest_timed_out = "\n".join(
-    #     f"{idx}: | {seconds_to_hms(user[0][1])} | {user[1]}"
-    #     for idx, user in enumerate(timed_out_time)
-    # )
+    most_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][0], reverse=True)
+    long_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][1], reverse=True)
     return (
-        ((user[0][0], user[1]) for user in most_timed_out),
-        ((user[0][1], user[1]) for user in longest_timed_out),
+        ((user[0][0], user[1]) for user in most_timed_out[:5]),
+        ((user[0][1], user[1]) for user in long_timed_out[:5]),
     )
 
 
@@ -378,7 +370,7 @@ def main() -> None:
                 "-" * padding,
                 "\n".join(
                     f"{idx:2}: {seconds_to_hms(user[0])} | {get_user(guild, user[1])}"
-                    for idx, user in enumerate(leaderboard[1])
+                    for idx, user in enumerate(leaderboard[1], start=1)
                 ),
             ]
         else:
