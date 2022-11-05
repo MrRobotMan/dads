@@ -4,12 +4,12 @@ import json
 import logging
 import random
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, DefaultDict, Iterator, Optional
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 PROJ_PATH = Path(__file__).parent
 TIMEOUTS = PROJ_PATH / "timeouts.json"
@@ -196,39 +196,7 @@ async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
         json.dump(data, fs, indent=2)
 
 
-def message_pyn() -> Iterator[str]:
-    """Ping PYN every hour on Thursdays until he posts the announcement.
-
-    Returns:
-        str: Message to PYN
-    """
-    messages = (
-        "Thursday",
-        "Did you know it's Thursday?",
-        "Still no Thursday announcement...",
-        "Hello? Thursday",
-    )
-    message_index = 0
-    while True:
-        yield messages[message_index]
-        message_index += 1
-        message_index %= len(messages)
-
-
-def next_week() -> float:
-    """Determine how long until next week's game night.
-
-    Returns:
-        int: Seconds to wait
-    """
-    now = dt.datetime.now()
-    end = (now + dt.timedelta(days=7)).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
-    return (end - now).total_seconds()
-
-
-def get_user(guild: Optional[discord.Guild], user: int) -> str:
+def get_user(guild: Optional[discord.Guild], user: int | str) -> str:
     """Find the user in the guild
 
     Args:
@@ -241,7 +209,9 @@ def get_user(guild: Optional[discord.Guild], user: int) -> str:
     if not guild:
         return "User not found"
     return (
-        member.display_name if (member := guild.get_member(user)) else "User not found"
+        member.display_name
+        if (member := guild.get_member(int(user)))
+        else "User not found"
     )
 
 
@@ -257,9 +227,9 @@ async def update_mistborn_leaderboard(
         int: Number of mentions
     """
     with MIST.open() as fs:
-        data: dict[str, list[int]] = json.load(fs)
-    last_count, user_id = data.setdefault(member.name, [0, member.id])
-    data[member.name] = [last_count + mentions, user_id]
+        data: dict[str, int] = json.load(fs)
+    last_count = data.setdefault(str(member.id), 0)
+    data[str(member.id)] = last_count + mentions
     with MIST.open("w") as fs:
         json.dump(data, fs, indent=2)
     return last_count + 1
@@ -267,8 +237,33 @@ async def update_mistborn_leaderboard(
 
 @dataclass(slots=True)
 class GameNight:
-    announcer: Optional[discord.User]
+    announcer: Optional[discord.User] = None
+    announcements_channel: Optional[discord.TextChannel] = None
+    game_night_channel: Optional[discord.TextChannel] = None
     last_game_night_announced: Optional[dt.date] = None
+    message_index: int = field(init=False, default=0)
+    messages = (
+        "Did you know it's Thursday?",
+        "Still no Thursday announcement...",
+        "Hello? Thursday",
+        "What's the polite *Canadian *way to say this... Have you noticed the time?",
+        "Have you no shame? We expect jr officers to post on time!",
+        "Is it just me, or is @ProtectYrNeck *late*?",
+        "Sometimes I think our jr officer wants to remain a jr officer forever.",
+        "Time's tickin' and if you dont post it soon, it'll be [Friday](https://www.youtube.com/watch?v=iCFOcqsnc9Y)",
+        "Some people must think we tolerate late game night announcements around here. We dont.",
+    )
+
+    @property
+    def message(self) -> str:
+        """Message the gamenight host with the next message."""
+        message = self.messages[self.message_index]
+        self.message_index = (self.message_index + 1) % len(self.messages)
+        return message
+
+    def mission_accomplished(self) -> None:
+        """Reset the message index"""
+        self.message_index = 0
 
 
 def main() -> None:
@@ -278,9 +273,10 @@ def main() -> None:
     config = configparser.ConfigParser()
     config.read(INI)
     bot_token = config["DISCORD"]["BOT_TOKEN"]
-    # announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
-    # game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
-    # game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
+    announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
+    game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
+    game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
+    barnmol = config["DISCORD"]["MISTBORN_BEST_USER"]
 
     champs, champ_positions = get_champs()
     sanderson_messages: dict[int, dt.datetime] = {}  # int is channel id
@@ -292,10 +288,20 @@ def main() -> None:
         guilds=True,
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
+    game_night = GameNight()
 
-    # announcements_channel = bot.get_channel(announcements_channel_id)
-    # game_night_channel = bot.get_channel(game_night_channel_id)
-    # game_night = GameNight(bot.get_user(game_night_host_id))
+    @bot.event
+    async def on_ready() -> None:  # type: ignore
+        announcements_channel = bot.get_channel(announcements_channel_id)
+        game_night_channel = bot.get_channel(game_night_channel_id)
+        if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
+            game_night_channel, discord.TextChannel
+        ):
+            return
+        game_night.announcements_channel = announcements_channel
+        game_night.game_night_channel = game_night_channel
+        game_night.announcer = bot.get_user(game_night_host_id)
+        did_pyn_announce_gamenight.start()
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[Any]) -> None:  # type: ignore
@@ -386,16 +392,19 @@ def main() -> None:
         """
         Show the leaderboard of Mistborn / Sanderson mentions
         """
+
         with MIST.open() as fs:
-            data: dict[str, list[int]] = json.load(fs)
-        leaderboard = sorted(
-            [v for v in data.values()], key=lambda x: x[0], reverse=True
-        )
+            data: dict[str, int] = json.load(fs)
+        leaderboard = sorted(data.items(), key=lambda x: x[1], reverse=True)
         guild = ctx.guild
 
         res = ["```Mistborn / Sanderson Top 10 Leaderboard"]
-        for idx, (mentions, user_id) in enumerate(leaderboard[:10], start=1):
+        for idx, (user_id, mentions) in enumerate(leaderboard[:10], start=1):
             res.append(f"{idx:2}: {mentions:<4} | {get_user(guild, user_id)}")
+        if barnmol not in (leader[0] for leader in leaderboard[:10]):
+            res.append(
+                f"\nHonorary Mention: {get_user(guild, barnmol)} with {data[barnmol]}"
+            )
         res.append("```")
         await ctx.send("\n".join(res))
 
@@ -446,32 +455,33 @@ def main() -> None:
             )
             sanderson_messages[msg.channel.id] = response.created_at
 
-    # @bot.listen("on_message")
-    # async def game_night_announcement(message: discord.Message) -> None:
-    #     """Check if the game night announcement happened."""
-    #     if (
-    #         message.channel == announcements_channel
-    #         and "game night" in message.content.lower()
-    #     ):
-    #         game_night.last_game_night_announced = message.created_at.date()
-    #     await bot.process_commands(message)
+    @bot.listen("on_message")
+    async def game_night_announcement(message: discord.Message) -> None:  # type: ignore
+        """Check if the game night announcement happened."""
+        if (
+            message.channel == game_night.announcements_channel
+            and game_night.announcer == message.author
+        ):
+            game_night.last_game_night_announced = message.created_at.date()
+        logger.info("%s - %s", message.author.name, message.content)
+        await bot.process_commands(message)
 
-    # @tasks.loop(hours=1)
-    # async def did_pyn_accounce_gamenight() -> None:
-    #     """Ping PYN until he announces gamenight."""
-    #     if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
-    #         game_night_channel, discord.TextChannel
-    #     ):
-    #         return
-    #     if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
-    #         # is it Thursday at 7:00 am?
-    #         message = message_pyn()
-    #         while game_night.last_game_night_announced != today.date():
-    #             await game_night_channel.send(
-    #                 f"{game_night.announcer.mention} {next(message)}"
-    #                 if game_night.announcer
-    #                 else next(message)
-    #             )
+    @tasks.loop(hours=1)
+    async def did_pyn_announce_gamenight() -> None:  # type: ignore
+        """Ping PYN until he announces gamenight."""
+        if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
+            # is it Thursday at 7:00 am?
+            if (
+                game_night.last_game_night_announced != today.date()
+                and game_night.game_night_channel is not None
+            ):
+                await game_night.game_night_channel.send(
+                    f"{game_night.announcer.mention} {game_night.message}"
+                    if game_night.announcer
+                    else game_night.message
+                )
+            else:
+                game_night.mission_accomplished()
 
     bot.run(bot_token, log_handler=handler)
 
