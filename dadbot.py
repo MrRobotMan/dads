@@ -15,7 +15,7 @@ PROJ_PATH = Path(__file__).parent
 TIMEOUTS = PROJ_PATH / "timeouts.json"
 MIST = PROJ_PATH / "mistborn.json"
 CHAMPS = PROJ_PATH / "champs.json"
-INI = PROJ_PATH / "env_test.ini"
+INI = PROJ_PATH / "env.ini"
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
 
