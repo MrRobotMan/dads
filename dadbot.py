@@ -483,6 +483,11 @@ def main() -> None:
             else:
                 game_night.mission_accomplished()
 
+    @bot.command(name="badbot")
+    async def kill_task(ctx: commands.Context[Any]) -> None:
+        """Kill switch for the pyn announcement. Just in case."""
+        did_pyn_announce_gamenight.stop()
+
     bot.run(bot_token, log_handler=handler)
 
 

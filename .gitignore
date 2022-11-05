@@ -5,3 +5,4 @@ env.ini
 *.json
 *.conf
 *.log
+*.ps1
