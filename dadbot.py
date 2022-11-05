@@ -359,7 +359,7 @@ def main() -> None:
             leaderboard = get_timeout_leaderboard(now, data)
             padding = 30
             response = [
-                "Most timed out:",
+                "```Most timed out:",
                 "-" * padding,
                 "\n".join(
                     f"{idx:2}: {user[0]:<4} | {get_user(guild, user[1])}"
@@ -372,6 +372,7 @@ def main() -> None:
                     f"{idx:2}: {seconds_to_hms(user[0])} | {get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[1], start=1)
                 ),
+                "```",
             ]
         else:
             response = ["No timeouts yet."]
@@ -392,9 +393,10 @@ def main() -> None:
         )
         guild = ctx.guild
 
-        res = ["Mistborn / Sanderson Top 10 Leaderboard"]
+        res = ["```Mistborn / Sanderson Top 10 Leaderboard"]
         for idx, (mentions, user_id) in enumerate(leaderboard[:10], start=1):
             res.append(f"{idx:2}: {mentions:<4} | {get_user(guild, user_id)}")
+        res.append("```")
         await ctx.send("\n".join(res))
 
     @bot.event
