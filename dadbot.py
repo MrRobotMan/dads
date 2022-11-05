@@ -15,7 +15,7 @@ PROJ_PATH = Path(__file__).parent
 TIMEOUTS = PROJ_PATH / "timeouts.json"
 MIST = PROJ_PATH / "mistborn.json"
 CHAMPS = PROJ_PATH / "champs.json"
-INI = PROJ_PATH / "env.ini"
+INI = PROJ_PATH / "env_test.ini"
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
 
@@ -182,7 +182,7 @@ async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
     existing = data.setdefault(user.name, (0, 0, False, user.id))
     duration = existing[1]
     if isinstance(existing[2], bool):
-        logger.error(f"{user.display_name} left timeout when not in it.")
+        logger.error("%s left timeout when not in it.", user.display_name)
     else:
         last_put_in_timeout = dt.datetime.strptime(existing[2], "%Y-%m-%d, %H:%M:%S")
         duration += (time - last_put_in_timeout).total_seconds()
@@ -407,6 +407,7 @@ def main() -> None:
 
         def check_for_timeout(roles: list[discord.Role]) -> bool:
             for role in roles:
+                # Timeout role
                 if role.id == 937779479676338196:
                     return True
             return False

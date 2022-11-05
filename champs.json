@@ -86,6 +86,10 @@
     "Jungle",
     "Baron"
   ],
+  "Gwen": [
+    "Baron",
+    "Jungle"
+  ],
   "Irelia": [
     "Mid",
     "Baron"
@@ -266,7 +270,14 @@
   "Veigar": [
     "Mid"
   ],
+  "Vex": [
+    "Mid"
+  ],
   "Vi": [
+    "Jungle"
+  ],
+  "Warwick": [
+    "Baron",
     "Jungle"
   ],
   "Wukong": [
@@ -280,6 +291,11 @@
     "Jungle"
   ],
   "Yasuo": [
+    "Mid"
+  ],
+  "Yone": [
+    "Baron",
+    "Jungle",
     "Mid"
   ],
   "Yuumi": [
