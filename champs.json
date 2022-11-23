@@ -1,4 +1,9 @@
 {
+  "Aatrox": [
+    "Baron",
+    "Jungle",
+    "Mid"
+  ],
   "Ahri": [
     "Mid"
   ],
@@ -129,6 +134,10 @@
   ],
   "Kayle": [
     "Baron"
+  ],
+  "Kayn": [
+    "Jungle",
+    "Mid"
   ],
   "Kennen": [
     "Baron"

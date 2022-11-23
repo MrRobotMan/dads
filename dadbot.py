@@ -1,3 +1,14 @@
+"""
+Bot for DADS discord server.
+Name: dadbot
+Purpose: Have fun and troll folks.
+Tasks so far:
+    Create random teams
+    Track when people are in timeout
+    Track mentions of Sanderson / Mistborn
+    Gently remind PYN to announce gamenight
+"""
+
 import configparser
 import datetime as dt
 import json
@@ -6,7 +17,7 @@ import random
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, DefaultDict, Iterator, Optional
+from typing import DefaultDict, Iterator, Optional
 
 import discord
 from discord.ext import commands, tasks
@@ -38,8 +49,8 @@ def get_champs() -> tuple[list[str], DefaultDict[str, list[str]]]:
 DefaultDict(<class 'list'>, {'Mid': ['Ahri', ...], \
 'Baron': ['Akali', ...], ...}))
     """
-    with CHAMPS.open() as f:
-        champs_data: dict[str, list[str]] = json.load(f)
+    with CHAMPS.open() as json_file:
+        champs_data: dict[str, list[str]] = json.load(json_file)
 
     champ_positions: DefaultDict[str, list[str]] = defaultdict(list)
 
@@ -55,7 +66,7 @@ def make_team(champ_positions: DefaultDict[str, list[str]]) -> list[str]:
     Get a random team of 5 champs based on where they normally play.
 
     >>> random.seed(1)
-    >>> make_team({'Mid': ['Aurelion Sol', 'Orianna'], \
+    >>> make_team({'Mid': ['Aurelion Sol', 'Oriana'], \
 'Baron': ['Darius', 'Riven'], \
 'Support': ['Janna', 'Senna'], \
 'Jungle': ['Evelynn', 'Rengar'], \
@@ -134,7 +145,7 @@ def get_timeout_leaderboard(
         data (dict[str, tuple[int, int, str | bool, int]]): Timeout data
 
     Returns:
-        tuple[list[tuple[int, int]], list[tuple[int, int]]]: users and number of timeouts / total time.
+        tuple[Iterator[tuple[int, int]], ...]]: users and timeouts count / total time.
     """
     logger.debug(data)
     compiled = {
@@ -156,8 +167,8 @@ async def entered_timeout(user: discord.Member, time: dt.datetime) -> None:
         user (discord.Member): User in timeout
         time (dt.datetime): Time of timeout
     """
-    with TIMEOUTS.open() as fs:
-        data: TIMEOUT = json.load(fs)
+    with TIMEOUTS.open() as json_file:
+        data: TIMEOUT = json.load(json_file)
     existing = data.setdefault(user.name, (0, 0, True, user.id))
     number_of_timeouts = existing[0] + 1
     data[user.name] = (
@@ -166,8 +177,8 @@ async def entered_timeout(user: discord.Member, time: dt.datetime) -> None:
         time.strftime("%Y-%m-%d, %H:%M:%S"),
         user.id,
     )
-    with TIMEOUTS.open("w+") as fs:
-        json.dump(data, fs, indent=2)
+    with TIMEOUTS.open("w+") as json_file:
+        json.dump(data, json_file, indent=2)
 
 
 async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
@@ -177,8 +188,8 @@ async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
         user (discord.Member): User no longer in timeout
         time (dt.datetime): Time of timeout ending
     """
-    with TIMEOUTS.open() as fs:
-        data: TIMEOUT = json.load(fs)
+    with TIMEOUTS.open() as json_file:
+        data: TIMEOUT = json.load(json_file)
     existing = data.setdefault(user.name, (0, 0, False, user.id))
     duration = existing[1]
     if isinstance(existing[2], bool):
@@ -192,8 +203,8 @@ async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
         False,
         user.id,
     )
-    with TIMEOUTS.open("w+") as fs:
-        json.dump(data, fs, indent=2)
+    with TIMEOUTS.open("w+") as json_file:
+        json.dump(data, json_file, indent=2)
 
 
 def get_user(guild: Optional[discord.Guild], user: int | str) -> str:
@@ -226,32 +237,43 @@ async def update_mistborn_leaderboard(
     Returns:
         int: Number of mentions
     """
-    with MIST.open() as fs:
-        data: dict[str, int] = json.load(fs)
+    with MIST.open() as json_file:
+        data: dict[str, int] = json.load(json_file)
     last_count = data.setdefault(str(member.id), 0)
     data[str(member.id)] = last_count + mentions
-    with MIST.open("w") as fs:
-        json.dump(data, fs, indent=2)
+    with MIST.open("w") as json_file:
+        json.dump(data, json_file, indent=2)
     return last_count + 1
 
 
 @dataclass(slots=True)
 class GameNight:
+    """Object to track the game night announcements."""
+
     announcer: Optional[discord.User] = None
     announcements_channel: Optional[discord.TextChannel] = None
     game_night_channel: Optional[discord.TextChannel] = None
     last_game_night_announced: Optional[dt.date] = None
     message_index: int = field(init=False, default=0)
     messages = (
-        "Did you know it's Thursday?",
-        "Still no Thursday announcement...",
-        "Hello? Thursday",
-        "What's the polite *Canadian *way to say this... Have you noticed the time?",
-        "Have you no shame? We expect jr officers to post on time!",
-        "Is it just me, or is @ProtectYrNeck *late*?",
-        "Sometimes I think our jr officer wants to remain a jr officer forever.",
-        "Time's tickin' and if you dont post it soon, it'll be [Friday](https://www.youtube.com/watch?v=iCFOcqsnc9Y)",
-        "Some people must think we tolerate late game night announcements around here. We dont.",
+        "Did you know it's Thursday{}?",
+        "Still no Thursday announcement{}...",
+        "Hello{}? Thursday",
+        "What's the polite *Canadian *way to say this..Have you noticed the time{}?",
+        "Have you no shame{}? We expect jr officers to post on time!",
+        "Is it just me, or is{} *late*?",
+        (
+            "Sometimes I think our jr officer wants to remain a jr officer forever. "
+            "Do you want to be promoted{}?"
+        ),
+        (
+            "Time's tickin'{} and if you dont post it soon, it'll be "
+            "[Friday](https://www.youtube.com/watch?v=iCFOcqsnc9Y)"
+        ),
+        (
+            "Some people must think we tolerate late game night announcements "
+            "around here{}. We dont."
+        ),
     )
 
     @property
@@ -259,7 +281,11 @@ class GameNight:
         """Message the gamenight host with the next message."""
         message = self.messages[self.message_index]
         self.message_index = (self.message_index + 1) % len(self.messages)
-        return message
+        if self.announcer is not None:
+            mention = f" {self.announcer.mention}"
+        else:
+            mention = ""
+        return message.format(mention)
 
     def mission_accomplished(self) -> None:
         """Reset the message index"""
@@ -291,7 +317,7 @@ def main() -> None:
     game_night = GameNight()
 
     @bot.event
-    async def on_ready() -> None:  # type: ignore
+    async def on_ready() -> None:
         announcements_channel = bot.get_channel(announcements_channel_id)
         game_night_channel = bot.get_channel(game_night_channel_id)
         if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
@@ -304,14 +330,14 @@ def main() -> None:
         did_pyn_announce_gamenight.start()
 
     @bot.command(name="team", help="Responds with a random team")
-    async def on_message(ctx: commands.Context[Any]) -> None:  # type: ignore
+    async def on_message(ctx: commands.Context[commands.Bot]) -> None:
         """
         (1) 5 champ team with roles based on where they normally play
         """
         await ctx.send("\n".join(make_team(champ_positions)))
 
     @bot.command(name="teams", help="Responds with two random teams")
-    async def on_message(ctx: commands.Context[Any]) -> None:  # type: ignore
+    async def on_message(ctx: commands.Context[commands.Bot]) -> None:
         """
         (2) 5 champ teams with roles based on where they normally play
         """
@@ -326,7 +352,7 @@ def main() -> None:
         name="chaos",
         help="Responds with two fully random teams (positions and damage type).",
     )
-    async def on_message(ctx: commands.Context[Any]) -> None:  # type: ignore
+    async def on_message(ctx: commands.Context[commands.Bot]) -> None:
         """
         (2) 5 champ teams with roles and builds fully random
         """
@@ -341,16 +367,16 @@ def main() -> None:
         name="jailtime",
         help="Get the total amount of time the user has spent in timeout.",
     )
-    async def on_message(  # type: ignore
-        ctx: commands.Context[Any], *args: discord.Member
+    async def on_message(
+        ctx: commands.Context[commands.Bot], *args: discord.Member
     ) -> None:
         """
         How long the supplied users have been in jail.
         """
         now = dt.datetime.utcnow()
         guild = ctx.guild
-        with TIMEOUTS.open() as fs:
-            data: TIMEOUT = json.load(fs)
+        with TIMEOUTS.open() as json_file:
+            data: TIMEOUT = json.load(json_file)
         if args:
             # Show a user or multiple users
             response: list[str] = []
@@ -358,7 +384,10 @@ def main() -> None:
                 found = data.get(user.name, (0, 0, False, user.id))
                 timeouts, total_time = get_user_timeout_data(now, found)
                 response.append(
-                    f"{user.mention} has been in timeout {timeouts} times for {seconds_to_hms(total_time)}."
+                    (
+                        f"{user.mention} has been in timeout {timeouts} times "
+                        f"for {seconds_to_hms(total_time)}."
+                    )
                 )
         elif data is not None:
             # Show the leaderboard
@@ -388,13 +417,13 @@ def main() -> None:
         name="mistborn",
         help="Show the Mistborn/Sanderson leaderboard",
     )
-    async def on_message(ctx: commands.Context[Any]) -> None:  # type: ignore
+    async def on_message(ctx: commands.Context[commands.Bot]) -> None:
         """
         Show the leaderboard of Mistborn / Sanderson mentions
         """
 
-        with MIST.open() as fs:
-            data: dict[str, int] = json.load(fs)
+        with MIST.open() as json_file:
+            data: dict[str, int] = json.load(json_file)
         leaderboard = sorted(data.items(), key=lambda x: x[1], reverse=True)
         guild = ctx.guild
 
@@ -409,7 +438,7 @@ def main() -> None:
         await ctx.send("\n".join(res))
 
     @bot.event
-    async def on_member_update(before: discord.Member, after: discord.Member) -> None:  # type: ignore
+    async def on_member_update(before: discord.Member, after: discord.Member) -> None:
         """
         Update the stored dictionary of user timeouts.
         """
@@ -433,7 +462,7 @@ def main() -> None:
             await left_timeout(before, now)
 
     @bot.listen("on_message")
-    async def someone_mentioned_mistborn(msg: discord.Message) -> None:  # type: ignore
+    async def someone_mentioned_mistborn(msg: discord.Message) -> None:
         """
         Update the mistborn leaderboard when someone mentions Mistborn or Sanderson.
 
@@ -456,18 +485,18 @@ def main() -> None:
             sanderson_messages[msg.channel.id] = response.created_at
 
     @bot.listen("on_message")
-    async def game_night_announcement(message: discord.Message) -> None:  # type: ignore
+    async def game_night_announcement(message: discord.Message) -> None:
         """Check if the game night announcement happened."""
         if (
             message.channel == game_night.announcements_channel
             and game_night.announcer == message.author
+            and message.embeds  # non-empty list if there's an embedded image.
         ):
             game_night.last_game_night_announced = message.created_at.date()
-        logger.info("%s - %s", message.author.name, message.content)
         await bot.process_commands(message)
 
     @tasks.loop(hours=1)
-    async def did_pyn_announce_gamenight() -> None:  # type: ignore
+    async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
         if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
             # is it Thursday at 7:00 am?
@@ -475,18 +504,25 @@ def main() -> None:
                 game_night.last_game_night_announced != today.date()
                 and game_night.game_night_channel is not None
             ):
-                await game_night.game_night_channel.send(
-                    f"{game_night.announcer.mention} {game_night.message}"
-                    if game_night.announcer
-                    else game_night.message
-                )
+                await game_night.game_night_channel.send(game_night.message)
             else:
                 game_night.mission_accomplished()
 
     @bot.command(name="badbot")
-    async def kill_task(ctx: commands.Context[Any]) -> None:
+    async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
         """Kill switch for the pyn announcement. Just in case."""
         did_pyn_announce_gamenight.stop()
+        await ctx.message.channel.send("PYN task stopped.")
+
+    @bot.command(name="goodbot")
+    async def start_task(ctx: commands.Context[commands.Bot]) -> None:
+        """Restart the pyn announcement."""
+        try:
+            did_pyn_announce_gamenight.start()
+        except RuntimeError:
+            await ctx.message.channel.send("Task already running.")
+        else:
+            await ctx.message.channel.send("PYN task stopped.")
 
     bot.run(bot_token, log_handler=handler)
 
@@ -499,11 +535,11 @@ def file_initialize(file: Path) -> None:
     """
     if file.exists():
         return
-    with file.open("w") as fs:
-        json.dump({}, fs, indent=2)
+    with file.open("w") as json_file:
+        json.dump({}, json_file, indent=2)
 
 
 if __name__ == "__main__":
-    for file in (MIST, TIMEOUTS):
-        file_initialize(file)
+    for lst in (MIST, TIMEOUTS):
+        file_initialize(lst)
     main()
