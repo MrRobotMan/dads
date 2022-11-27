@@ -495,7 +495,7 @@ def main() -> None:
             game_night.last_game_night_announced = message.created_at.date()
         await bot.process_commands(message)
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
         if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
