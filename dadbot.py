@@ -493,7 +493,7 @@ def main() -> None:
             and message.embeds  # non-empty list if there's an embedded image.
         ):
             game_night.last_game_night_announced = message.created_at.date()
-        await bot.process_commands(message)
+        #await bot.process_commands(message)
 
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
