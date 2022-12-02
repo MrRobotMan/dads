@@ -490,7 +490,7 @@ def main() -> None:
         if (
             message.channel == game_night.announcements_channel
             and game_night.announcer == message.author
-            and message.embeds  # non-empty list if there's an embedded image.
+            # and message.embeds  # non-empty list if there's an embedded image.
         ):
             game_night.last_game_night_announced = message.created_at.date()
         #await bot.process_commands(message)
