@@ -304,6 +304,7 @@ def main() -> None:
     game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
     game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
     barnmol = config["DISCORD"]["MISTBORN_BEST_USER"]
+    administrator = int(config["DISCORD"]["ADMIN"])
 
     champs, champ_positions = get_champs()
     sanderson_messages: dict[int, dt.datetime] = {}  # int is channel id
@@ -517,13 +518,14 @@ def main() -> None:
     @bot.command(name="goodbot")
     async def start_task(ctx: commands.Context[commands.Bot]) -> None:
         """Restart the pyn announcement."""
-        await ctx.message.channel.send(f"Nice try {ctx.message.author.mention}")
-        # try:
-        #     did_pyn_announce_gamenight.start()
-        # except RuntimeError:
-        #     await ctx.message.channel.send("Task already running.")
-        # else:
-        #     await ctx.message.channel.send("PYN task started.")
+        if ctx.message.author.id != administrator:
+            await ctx.message.channel.send(f"Nice try {ctx.message.author.mention}")
+        else:
+            try:
+                did_pyn_announce_gamenight.start()
+                await ctx.message.channel.send("PYN task started.")
+            except RuntimeError:
+                await ctx.message.channel.send("Task already running.")
 
     bot.run(bot_token, log_handler=handler)
 
