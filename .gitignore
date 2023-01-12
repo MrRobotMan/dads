@@ -6,3 +6,5 @@ env.ini
 *.conf
 *.log
 *.ps1
+nohup.out
+
