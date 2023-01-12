@@ -333,13 +333,11 @@
     "Mid",
     "Baron"
   ],
-  "Zeri": [
-    "Dragon"
-  ],
   "Ziggs": [
     "Mid"
   ],
   "Zoe": [
-    "Mid"
+    "Mid",
+    "Support"
   ]
 }
