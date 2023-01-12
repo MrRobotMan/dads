@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import DefaultDict, Iterator, Optional
 
 import discord
-from discord.ext import commands  # , tasks
+from discord.ext import commands, tasks
 
 PROJ_PATH = Path(__file__).parent
 TIMEOUTS = PROJ_PATH / "timeouts.json"
@@ -328,7 +328,7 @@ def main() -> None:
         game_night.announcements_channel = announcements_channel
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
-        # did_pyn_announce_gamenight.start()
+        did_pyn_announce_gamenight.start()
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -495,24 +495,24 @@ def main() -> None:
         ):
             game_night.last_game_night_announced = message.created_at.date()
 
-    # @tasks.loop(minutes=43)
-    # async def did_pyn_announce_gamenight() -> None:
-    #     """Ping PYN until he announces gamenight."""
-    #     if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
-    #         # is it Thursday at 7:00 am?
-    #         if (
-    #             game_night.last_game_night_announced != today.date()
-    #             and game_night.game_night_channel is not None
-    #         ):
-    #             await game_night.game_night_channel.send(game_night.message)
-    #         else:
-    #             game_night.mission_accomplished()
+    @tasks.loop(minutes=43)
+    async def did_pyn_announce_gamenight() -> None:
+        """Ping PYN until he announces gamenight."""
+        if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
+            # is it Thursday at 7:00 am?
+            if (
+                game_night.last_game_night_announced != today.date()
+                and game_night.game_night_channel is not None
+            ):
+                await game_night.game_night_channel.send(game_night.message)
+            else:
+                game_night.mission_accomplished()
 
-    # @bot.command(name="badbot")
-    # async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
-    #     """Kill switch for the pyn announcement. Just in case."""
-    #     did_pyn_announce_gamenight.stop()
-    #     await ctx.message.channel.send("PYN task stopped.")
+    @bot.command(name="badbot")
+    async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
+        """Kill switch for the pyn announcement. Just in case."""
+        did_pyn_announce_gamenight.stop()
+        await ctx.message.channel.send("PYN task stopped.")
 
     @bot.command(name="goodbot")
     async def start_task(ctx: commands.Context[commands.Bot]) -> None:
@@ -523,7 +523,7 @@ def main() -> None:
         # except RuntimeError:
         #     await ctx.message.channel.send("Task already running.")
         # else:
-        #     await ctx.message.channel.send("PYN task stopped.")
+        #     await ctx.message.channel.send("PYN task started.")
 
     bot.run(bot_token, log_handler=handler)
 
