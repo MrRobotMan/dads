@@ -391,7 +391,7 @@ def main() -> None:
                         f"for {seconds_to_hms(total_time)}."
                     )
                 )
-        elif data is not None:
+        elif data != {}:
             # Show the leaderboard
             leaderboard = get_timeout_leaderboard(now, data)
             padding = 30
