@@ -329,7 +329,7 @@ def main() -> None:
         game_night.announcements_channel = announcements_channel
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
-        did_pyn_announce_gamenight.start()
+        # did_pyn_announce_gamenight.start()
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -486,7 +486,7 @@ def main() -> None:
             )
             sanderson_messages[msg.channel.id] = response.created_at
 
-    @bot.listen("on_message")
+    '''@bot.listen("on_message")
     async def game_night_announcement(message: discord.Message) -> None:
         """Check if the game night announcement happened."""
         if (
@@ -525,7 +525,7 @@ def main() -> None:
                 did_pyn_announce_gamenight.start()
                 await ctx.message.channel.send("PYN task started.")
             except RuntimeError:
-                await ctx.message.channel.send("Task already running.")
+                await ctx.message.channel.send("Task already running.")'''
 
     bot.run(bot_token, log_handler=handler)
 
