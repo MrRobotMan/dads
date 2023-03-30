@@ -486,14 +486,14 @@ def main() -> None:
             )
             sanderson_messages[msg.channel.id] = response.created_at
 
-    '''@bot.listen("on_message")
+    @bot.listen("on_message")
     async def game_night_announcement(message: discord.Message) -> None:
         """Check if the game night announcement happened."""
-        if (
-            message.channel == game_night.announcements_channel
-            and game_night.announcer == message.author
-            # and message.embeds  # non-empty list if there's an embedded image.
-        ):
+        # if (
+        #     message.channel == game_night.announcements_channel
+        #     and game_night.announcer == message.author
+        # ):
+        if message.channel == game_night.announcements_channel:
             game_night.last_game_night_announced = message.created_at.date()
 
     @tasks.loop(minutes=43)
@@ -525,7 +525,7 @@ def main() -> None:
                 did_pyn_announce_gamenight.start()
                 await ctx.message.channel.send("PYN task started.")
             except RuntimeError:
-                await ctx.message.channel.send("Task already running.")'''
+                await ctx.message.channel.send("Task already running.")
 
     bot.run(bot_token, log_handler=handler)
 
