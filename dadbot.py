@@ -13,238 +13,24 @@ import configparser
 import datetime as dt
 import json
 import logging
-import random
-from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import DefaultDict, Iterator, Optional
+from typing import Optional
 
 import discord
 from discord.ext import commands, tasks
 
-PROJ_PATH = Path(__file__).parent
-TIMEOUTS = PROJ_PATH / "timeouts.json"
-MIST = PROJ_PATH / "mistborn.json"
-CHAMPS = PROJ_PATH / "champs.json"
-INI = PROJ_PATH / "env.ini"
+import teambuilder
+import users
+from paths import INI, MIST, PROJ_PATH, TIMEOUTS
+
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
 
-handler = logging.FileHandler(
+
+HANDLER = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
 )
-logger = logging.getLogger("debug")
-logger.setLevel(logging.DEBUG)
-logger.addHandler(
-    logging.FileHandler(filename=PROJ_PATH / "debug.log", encoding="utf-8", mode="w")
-)
-
-
-def get_champs() -> tuple[list[str], DefaultDict[str, list[str]]]:
-    """
-    Read in the data on the champions
-
-    >>> get_champs() # doctest: +ELLIPSIS
-    ({'Ahri': ['Mid'], ...}, \
-DefaultDict(<class 'list'>, {'Mid': ['Ahri', ...], \
-'Baron': ['Akali', ...], ...}))
-    """
-    with CHAMPS.open() as json_file:
-        champs_data: dict[str, list[str]] = json.load(json_file)
-
-    champ_positions: DefaultDict[str, list[str]] = defaultdict(list)
-
-    for champ, positions in champs_data.items():
-        for pos in positions:
-            champ_positions[pos].append(champ)
-
-    return list(champs_data.keys()), champ_positions
-
-
-def make_team(champ_positions: DefaultDict[str, list[str]]) -> list[str]:
-    """
-    Get a random team of 5 champs based on where they normally play.
-
-    >>> random.seed(1)
-    >>> make_team({'Mid': ['Aurelion Sol', 'Oriana'], \
-'Baron': ['Darius', 'Riven'], \
-'Support': ['Janna', 'Senna'], \
-'Jungle': ['Evelynn', 'Rengar'], \
-'Dragon': ['Lucian', 'Jinx']})
-    ['Mid Aurelion Sol', 'Baron Darius', 'Support Senna', \
-'Jungle Evelynn', 'Dragon Jinx']
-    """
-    team: list[str] = []
-    for position, champs in champ_positions.items():
-        champ = random.choice(champs)
-        # Uncomment below when AP / AD / Utility stuff is worked out
-        # build = random.choice(champs_data[champ]['builds'])
-        team.append(f"{position} {champ}")  # Add build once implemented
-    random.shuffle(team)
-    return team
-
-
-def make_chaos(champs: list[str]) -> list[str]:
-    """
-    Get a fully random ream of 5 champs. They will get randomly assigned
-    to AD / AP / Tank as well as positions.
-
-    >>> random.seed(1)
-    >>> make_chaos(['Aurelion Sol', 'Darius', 'Janna', 'Evelynn', 'Lucian', \
-'Ezreal', 'Blitzcrank', 'Kennen', 'Draven', 'Varus'])
-    ['AP Baron Janna', 'AP Dragon Darius', 'Tank Mid Lucian', \
-'AP Jungle Aurelion Sol', 'AD Support Evelynn']
-    """
-    positions = ["Baron", "Dragon", "Mid", "Jungle", "Support"]
-    build_opts = ["AD", "AP", "Tank"]
-    team = random.sample(champs, 5)
-    builds = [random.choice(build_opts) for _ in positions]
-    return [f"{builds[i]} {positions[i]} {champ}" for i, champ in enumerate(team)]
-
-
-def get_user_timeout_data(
-    time: dt.datetime, data: tuple[int, int, str | bool, int]
-) -> tuple[int, int]:
-    """Checks if the indicated user is in timeout
-
-    Args:
-        time (dt.datetime): Time of the current check
-        data (tuple[int, int, str | bool, int]): Timeout data
-    Returns:
-        tuple[int, int]: Number of times in timeout and duration (seconds)
-    """
-    if isinstance(data[2], bool):
-        # Not in timeout.
-        return (data[0], data[1])
-    latest_in_timeout = dt.datetime.strptime(data[2], "%Y-%m-%d, %H:%M:%S")
-    return (data[0], data[1] + int((time - latest_in_timeout).total_seconds()))
-
-
-def seconds_to_hms(total_seconds: float) -> str:
-    """Convert seconds to H:M:S
-
-    Args:
-        total_seconds (int): Total number of seconds
-
-    Returns:
-        str: hours:minutes:seconds
-    >>> seconds_to_hms(4340)
-    '1:12:20'
-    """
-    hours, minutes = divmod(total_seconds, 3600)
-    minutes, seconds = divmod(minutes, 60)
-    return f"{hours}:{minutes}:{seconds}"
-
-
-def get_timeout_leaderboard(
-    time: dt.datetime, data: TIMEOUT
-) -> tuple[Iterator[tuple[int, int]], ...]:
-    """Return the most timed out people.
-
-    Args:
-        time (dt.datetime): Time of the current check
-        data (dict[str, tuple[int, int, str | bool, int]]): Timeout data
-
-    Returns:
-        tuple[Iterator[tuple[int, int]], ...]]: users and timeouts count / total time.
-    """
-    logger.debug(data)
-    compiled = {
-        (*get_user_timeout_data(time, v), idx): v[3]
-        for idx, v in enumerate(data.values())
-    }
-    most_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][0], reverse=True)
-    long_timed_out = sorted(list(compiled.items()), key=lambda x: x[0][1], reverse=True)
-    return (
-        ((user[0][0], user[1]) for user in most_timed_out[:5]),
-        ((user[0][1], user[1]) for user in long_timed_out[:5]),
-    )
-
-
-async def entered_timeout(user: discord.Member, time: dt.datetime) -> None:
-    """Record the timeout into the log.
-
-    Args:
-        user (discord.Member): User in timeout
-        time (dt.datetime): Time of timeout
-    """
-    with TIMEOUTS.open() as json_file:
-        data: TIMEOUT = json.load(json_file)
-    existing = data.setdefault(user.name, (0, 0, True, user.id))
-    number_of_timeouts = existing[0] + 1
-    data[user.name] = (
-        number_of_timeouts,
-        existing[1],
-        time.strftime("%Y-%m-%d, %H:%M:%S"),
-        user.id,
-    )
-    with TIMEOUTS.open("w+") as json_file:
-        json.dump(data, json_file, indent=2)
-
-
-async def left_timeout(user: discord.Member, time: dt.datetime) -> None:
-    """Record the timeout into the log.
-
-    Args:
-        user (discord.Member): User no longer in timeout
-        time (dt.datetime): Time of timeout ending
-    """
-    with TIMEOUTS.open() as json_file:
-        data: TIMEOUT = json.load(json_file)
-    existing = data.setdefault(user.name, (0, 0, False, user.id))
-    duration = existing[1]
-    if isinstance(existing[2], bool):
-        logger.error("%s left timeout when not in it.", user.display_name)
-    else:
-        last_put_in_timeout = dt.datetime.strptime(existing[2], "%Y-%m-%d, %H:%M:%S")
-        duration += (time - last_put_in_timeout).total_seconds()
-    data[user.name] = (
-        existing[0],
-        int(duration),
-        False,
-        user.id,
-    )
-    with TIMEOUTS.open("w+") as json_file:
-        json.dump(data, json_file, indent=2)
-
-
-def get_user(guild: Optional[discord.Guild], user: int | str) -> str:
-    """Find the user in the guild
-
-    Args:
-        guild (Optional[discord.Guild]): Guild of the bot
-        user (int): user id
-
-    Returns:
-        str: User's display name or "user not found"
-    """
-    if not guild:
-        return "User not found"
-    return (
-        member.display_name
-        if (member := guild.get_member(int(user)))
-        else "User not found"
-    )
-
-
-async def update_mistborn_leaderboard(
-    member: discord.User | discord.Member, mentions: int
-) -> int:
-    """Update the mistborn leaderboard
-
-    Args:
-        member (discord.Member): User who made the mention.
-        mentions (int): Number of mentions in the message.
-    Returns:
-        int: Number of mentions
-    """
-    with MIST.open() as json_file:
-        data: dict[str, int] = json.load(json_file)
-    last_count = data.setdefault(str(member.id), 0)
-    data[str(member.id)] = last_count + mentions
-    with MIST.open("w") as json_file:
-        json.dump(data, json_file, indent=2)
-    return last_count + 1
 
 
 @dataclass(slots=True)
@@ -306,7 +92,7 @@ def main() -> None:
     barnmol = config["DISCORD"]["MISTBORN_BEST_USER"]
     administrator = int(config["DISCORD"]["ADMIN"])
 
-    champs, champ_positions = get_champs()
+    champs, champ_positions = teambuilder.get_champs()
     sanderson_messages: dict[int, dt.datetime] = {}  # int is channel id
 
     intents = discord.Intents(
@@ -329,14 +115,14 @@ def main() -> None:
         game_night.announcements_channel = announcements_channel
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
-        # did_pyn_announce_gamenight.start()
+        did_pyn_announce_gamenight.start()
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
         """
         (1) 5 champ team with roles based on where they normally play
         """
-        await ctx.send("\n".join(make_team(champ_positions)))
+        await ctx.send("\n".join(teambuilder.make_team(champ_positions)))
 
     @bot.command(name="teams", help="Responds with two random teams")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -345,7 +131,7 @@ def main() -> None:
         """
         response = ""
         for side in "AB":
-            squad = "\n> ".join(make_team(champ_positions))
+            squad = "\n> ".join(teambuilder.make_team(champ_positions))
             response += f"Side {side}\n> {squad}\n"
 
         await ctx.send(response)
@@ -360,7 +146,7 @@ def main() -> None:
         """
         response = ""
         for side in "AB":
-            squad = "\n> ".join(make_chaos(champs))
+            squad = "\n> ".join(teambuilder.make_chaos(champs))
             response += f"Side {side}\n> {squad}\n"
 
         await ctx.send(response.strip())  # Remove tailing '\n'
@@ -384,7 +170,7 @@ def main() -> None:
             response: list[str] = []
             for user in args:
                 found = data.get(user.name, (0, 0, False, user.id))
-                timeouts, total_time = get_user_timeout_data(now, found)
+                timeouts, total_time = users.get_user_timeout_data(now, found)
                 response.append(
                     (
                         f"{user.mention} has been in timeout {timeouts} times "
@@ -393,20 +179,20 @@ def main() -> None:
                 )
         elif data != {}:
             # Show the leaderboard
-            leaderboard = get_timeout_leaderboard(now, data)
+            leaderboard = users.get_timeout_leaderboard(now, data)
             padding = 30
             response = [
                 "```Most timed out:",
                 "-" * padding,
                 "\n".join(
-                    f"{idx:2}: {user[0]:<4} | {get_user(guild, user[1])}"
+                    f"{idx:2}: {user[0]:<4} | {users.get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[0], start=1)
                 ),
                 "-" * padding,
                 "Longest timed out:",
                 "-" * padding,
                 "\n".join(
-                    f"{idx:2}: {seconds_to_hms(user[0])} | {get_user(guild, user[1])}"
+                    f"{idx:2}: {seconds_to_hms(user[0])} | {users.get_user(guild, user[1])}"
                     for idx, user in enumerate(leaderboard[1], start=1)
                 ),
                 "```",
@@ -431,10 +217,10 @@ def main() -> None:
 
         res = ["```Mistborn / Sanderson Top 10 Leaderboard"]
         for idx, (user_id, mentions) in enumerate(leaderboard[:10], start=1):
-            res.append(f"{idx:2}: {mentions:<4} | {get_user(guild, user_id)}")
+            res.append(f"{idx:2}: {mentions:<4} | {users.get_user(guild, user_id)}")
         if barnmol not in (leader[0] for leader in leaderboard[:10]):
             res.append(
-                f"\nHonorary Mention: {get_user(guild, barnmol)} with {data[barnmol]}"
+                f"\nHonorary Mention: {users.get_user(guild, barnmol)} with {data[barnmol]}"
             )
         res.append("```")
         await ctx.send("\n".join(res))
@@ -459,9 +245,9 @@ def main() -> None:
             # No change, do nothing.
             return
         if after_timeout:
-            await entered_timeout(before, now)
+            await users.entered_timeout(before, now)
         else:
-            await left_timeout(before, now)
+            await users.left_timeout(before, now)
 
     @bot.listen("on_message")
     async def someone_mentioned_mistborn(msg: discord.Message) -> None:
@@ -475,7 +261,7 @@ def main() -> None:
             # Don't count when the command is called or if the dadbot does it.
             return
         if cnt := message.count("sanderson") + message.count("mistborn"):
-            mentions = await update_mistborn_leaderboard(msg.author, cnt)
+            mentions = await users.update_mistborn_leaderboard(msg.author, cnt)
             last_response = sanderson_messages.get(msg.channel.id)
             if (
                 last_response := sanderson_messages.get(msg.channel.id)
@@ -527,7 +313,23 @@ def main() -> None:
             except RuntimeError:
                 await ctx.message.channel.send("Task already running.")
 
-    bot.run(bot_token, log_handler=handler)
+    bot.run(bot_token, log_handler=HANDLER)
+
+
+def seconds_to_hms(total_seconds: float) -> str:
+    """Convert seconds to H:M:S
+
+    Args:
+        total_seconds (int): Total number of seconds
+
+    Returns:
+        str: hours:minutes:seconds
+    >>> seconds_to_hms(4340)
+    '1:12:20'
+    """
+    hours, minutes = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(minutes, 60)
+    return f"{hours}:{minutes}:{seconds}"
 
 
 def file_initialize(file: Path) -> None:
