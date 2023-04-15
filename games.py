@@ -27,7 +27,7 @@ class EpicGame:
         """Build a game from the json data"""
         return cls(
             title=json_data["title"],
-            url=f'https://store.epicgames.com/en-US/p/{json_data["urlSlug"]}',
+            url=f'https://launcher.store.epicgames.com/en-US/p/{json_data["urlSlug"]}',
             price=json_data["price"]["totalPrice"]["discountPrice"],
             promo=get_promo_dates(json_data),
         )

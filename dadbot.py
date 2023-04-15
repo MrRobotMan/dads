@@ -22,6 +22,7 @@ from discord.ext import commands, tasks
 
 import teambuilder
 import users
+from games import epic_free_games
 from paths import INI, MIST, PROJ_PATH, TIMEOUTS
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
@@ -87,6 +88,7 @@ def main() -> None:
     config.read(INI)
     bot_token = config["DISCORD"]["BOT_TOKEN"]
     announcements_channel_id = int(config["DISCORD"]["ANNOUNCEMENTS_CHANNEL_ID"])
+    new_games_channel_id = int(config["DISCORD"]["NEW_GAMES_CHANNEL_ID"])
     game_night_channel_id = int(config["DISCORD"]["GAME_NIGHT_CHANNEL_ID"])
     game_night_host_id = int(config["DISCORD"]["GAME_NIGHT_USER"])
     barnmol = config["DISCORD"]["MISTBORN_BEST_USER"]
@@ -103,6 +105,7 @@ def main() -> None:
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
     game_night = GameNight()
+    new_games_channel = bot.get_channel(new_games_channel_id)
 
     @bot.event
     async def on_ready() -> None:
@@ -116,6 +119,7 @@ def main() -> None:
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
         did_pyn_announce_gamenight.start()
+        epic_games.start()
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -294,6 +298,15 @@ def main() -> None:
                 await game_night.game_night_channel.send(game_night.message)
             else:
                 game_night.mission_accomplished()
+
+    @tasks.loop(hours=24)
+    async def epic_games() -> None:
+        """Message new games chat with the Epic games of the week."""
+        if (
+            isinstance(new_games_channel, discord.channel.TextChannel)
+            and dt.datetime.now().weekday() == 3
+        ):
+            await new_games_channel.send("\n".join(epic_free_games()))
 
     @bot.command(name="badbot")
     async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
