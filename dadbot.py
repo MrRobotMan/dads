@@ -299,12 +299,13 @@ def main() -> None:
             else:
                 game_night.mission_accomplished()
 
-    @tasks.loop(hours=24)
+    @tasks.loop(hours=1)
     async def epic_games() -> None:
         """Message new games chat with the Epic games of the week."""
         if (
             isinstance(new_games_channel, discord.channel.TextChannel)
-            and dt.datetime.now().weekday() == 3
+            and (today := dt.datetime.now()).weekday() == 2
+            and 17 <= today.hour < 18
         ):
             await new_games_channel.send("\n".join(epic_free_games()))
 
