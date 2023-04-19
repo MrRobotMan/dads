@@ -304,8 +304,8 @@ def main() -> None:
         """Message new games chat with the Epic games of the week."""
         if (
             isinstance(new_games_channel, discord.channel.TextChannel)
-            and (today := dt.datetime.now()).weekday() == 2
-            and 17 <= today.hour < 18
+            and (today := dt.datetime.now()).weekday() == 3
+            and 14 <= today.hour < 15
         ):
             await new_games_channel.send("\n".join(epic_free_games()))
 
