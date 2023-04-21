@@ -23,7 +23,7 @@ from discord.ext import commands, tasks
 import teambuilder
 import users
 from games import epic_free_games
-from paths import INI, MIST, PROJ_PATH, TIMEOUTS
+from paths import GAMES, INI, MIST, PROJ_PATH, TIMEOUTS
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
@@ -105,12 +105,12 @@ def main() -> None:
     )
     bot = commands.Bot(command_prefix="!", intents=intents)
     game_night = GameNight()
-    new_games_channel = bot.get_channel(new_games_channel_id)
 
     @bot.event
     async def on_ready() -> None:
         announcements_channel = bot.get_channel(announcements_channel_id)
         game_night_channel = bot.get_channel(game_night_channel_id)
+        new_games_channel = bot.get_channel(new_games_channel_id)
         if not isinstance(announcements_channel, discord.TextChannel) or not isinstance(
             game_night_channel, discord.TextChannel
         ):
@@ -119,7 +119,7 @@ def main() -> None:
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
         did_pyn_announce_gamenight.start()
-        epic_games.start()
+        epic_games.start(new_games_channel)
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -300,14 +300,16 @@ def main() -> None:
                 game_night.mission_accomplished()
 
     @tasks.loop(hours=1)
-    async def epic_games() -> None:
+    async def epic_games(new_games_channel: discord.channel.TextChannel) -> None:
         """Message new games chat with the Epic games of the week."""
-        if (
-            isinstance(new_games_channel, discord.channel.TextChannel)
-            and (today := dt.datetime.now()).weekday() == 3
-            and 14 <= today.hour < 15
-        ):
-            await new_games_channel.send("\n".join(epic_free_games()))
+        current = list(epic_free_games())
+        with GAMES.open("r", encoding="utf8") as fp:
+            last = json.load(fp)
+        if last == current:
+            return
+        with GAMES.open("w") as f:
+            json.dump(current, f)
+        await new_games_channel.send("\n".join(current))
 
     @bot.command(name="badbot")
     async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
@@ -359,6 +361,6 @@ def file_initialize(file: Path) -> None:
 
 
 if __name__ == "__main__":
-    for lst in (MIST, TIMEOUTS):
+    for lst in (MIST, TIMEOUTS, GAMES):
         file_initialize(lst)
     main()
