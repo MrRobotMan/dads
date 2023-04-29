@@ -25,9 +25,10 @@ class EpicGame:
     @classmethod
     def from_json(cls, json_data: dict[str, Any]) -> EpicGame:
         """Build a game from the json data"""
+        url = json_data["catalogNs"]["mappings"][0]["pageSlug"]
         return cls(
             title=json_data["title"],
-            url=f'https://launcher.store.epicgames.com/en-US/p/{json_data["urlSlug"]}',
+            url=f"https://launcher.store.epicgames.com/en-US/p/{url}",
             price=json_data["price"]["totalPrice"]["discountPrice"],
             promo=get_promo_dates(json_data),
         )
@@ -54,7 +55,7 @@ def get_promo_dates(data: dict[str, Any]) -> tuple[str, str] | None:
     return (dates["startDate"], dates["endDate"])
 
 
-def epic_free_games() -> Iterable[str]:
+def epic_free_games(show_all_data: bool = False) -> Iterable[str]:
     """Get the free games of the week from epic."""
     site = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
     response = urllib.request.urlopen(site)
@@ -63,4 +64,11 @@ def epic_free_games() -> Iterable[str]:
     data = json.loads(response.read())
     raw_games: list[GAME] = data["data"]["Catalog"]["searchStore"]["elements"]
     games = [EpicGame.from_json(game) for game in raw_games]
+    if show_all_data:
+        print(*[game for game in games if game.valid() and game.price == 0], sep="\n")
     return (game.url for game in games if game.valid() and game.price == 0)
+
+
+if __name__ == "__main__":
+    with open("games.json", "w", encoding="utf8") as fp:
+        json.dump(list(epic_free_games(True)), fp)
