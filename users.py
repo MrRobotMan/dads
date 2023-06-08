@@ -9,7 +9,7 @@ from typing import Iterator, Optional
 
 import discord
 
-from paths import MIST, PROJ_PATH, TIMEOUTS
+from paths import MIST, NAMES, PROJ_PATH, TIMEOUTS
 
 LOGGER = logging.getLogger("debug")
 LOGGER.setLevel(logging.DEBUG)
@@ -146,3 +146,32 @@ async def update_mistborn_leaderboard(
     with MIST.open("w") as json_file:
         json.dump(data, json_file, indent=2)
     return last_count + 1
+
+
+async def name_change(user: discord.Member) -> None:
+    """
+    Adds the latest display name to the json data for the user.
+    """
+    name = user.display_name
+    id_no = str(user.id)
+    data: dict[str, list[str]] = json.loads(NAMES.read_text())
+    user_data = data.get(id_no, [])
+    if not user_data:
+        data[id_no] = []
+    if name not in user_data:
+        data[id_no].append(name)
+    with NAMES.open("w", encoding="utf8") as file:
+        json.dump(data, file, indent=2)
+
+
+async def user_history(user: discord.Member) -> list[str]:
+    """
+    Return the list of past display names for a user.
+    """
+    id_no = str(user.id)
+    data: dict[str, list[str]] = json.loads(NAMES.read_text())
+    match data.get(id_no):
+        case None:
+            return [user.display_name]
+        case names:
+            return names

@@ -23,7 +23,7 @@ from discord.ext import commands, tasks
 import teambuilder
 import users
 from games import epic_free_games
-from paths import GAMES, INI, MIST, PROJ_PATH, TIMEOUTS
+from paths import GAMES, INI, MIST, NAMES, PROJ_PATH, TIMEOUTS
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
@@ -229,10 +229,41 @@ def main() -> None:
         res.append("```")
         await ctx.send("\n".join(res))
 
+    @bot.command(name="badbot")
+    async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
+        """Kill switch for the pyn announcement. Just in case."""
+        did_pyn_announce_gamenight.stop()
+        await ctx.message.channel.send("PYN task stopped.")
+
+    @bot.command(name="goodbot")
+    async def start_task(ctx: commands.Context[commands.Bot]) -> None:
+        """Restart the pyn announcement."""
+        if ctx.message.author.id != administrator:
+            await ctx.message.channel.send(f"Nice try {ctx.message.author.mention}")
+        else:
+            try:
+                did_pyn_announce_gamenight.start()
+                await ctx.message.channel.send("PYN task started.")
+            except RuntimeError:
+                await ctx.message.channel.send("Task already running.")
+
+    @bot.command(name="history")
+    async def user_history(
+        ctx: commands.Context[commands.Bot], user: discord.Member
+    ) -> None:
+        """
+        Message the channel with the requested user's history.
+        """
+        await users.name_change(user)
+        history = await users.user_history(user)
+        history.reverse()
+        names = "\n".join(history)
+        await ctx.message.channel.send(names)
+
     @bot.event
     async def on_member_update(before: discord.Member, after: discord.Member) -> None:
         """
-        Update the stored dictionary of user timeouts.
+        Update the stored dictionary of user timeouts and name history.
         """
 
         def check_for_timeout(roles: list[discord.Role]) -> bool:
@@ -241,6 +272,9 @@ def main() -> None:
                 if role.id == 937779479676338196:
                     return True
             return False
+
+        if after.display_name != before.display_name:
+            await users.name_change(after)
 
         now = dt.datetime.utcnow()
         before_timeout = check_for_timeout(before.roles)
@@ -311,24 +345,6 @@ def main() -> None:
             json.dump(current, f)
         await new_games_channel.send("\n".join(current))
 
-    @bot.command(name="badbot")
-    async def kill_task(ctx: commands.Context[commands.Bot]) -> None:
-        """Kill switch for the pyn announcement. Just in case."""
-        did_pyn_announce_gamenight.stop()
-        await ctx.message.channel.send("PYN task stopped.")
-
-    @bot.command(name="goodbot")
-    async def start_task(ctx: commands.Context[commands.Bot]) -> None:
-        """Restart the pyn announcement."""
-        if ctx.message.author.id != administrator:
-            await ctx.message.channel.send(f"Nice try {ctx.message.author.mention}")
-        else:
-            try:
-                did_pyn_announce_gamenight.start()
-                await ctx.message.channel.send("PYN task started.")
-            except RuntimeError:
-                await ctx.message.channel.send("Task already running.")
-
     bot.run(bot_token, log_handler=HANDLER)
 
 
@@ -361,6 +377,6 @@ def file_initialize(file: Path) -> None:
 
 
 if __name__ == "__main__":
-    for lst in (MIST, TIMEOUTS, GAMES):
+    for lst in (MIST, TIMEOUTS, GAMES, NAMES):
         file_initialize(lst)
     main()
