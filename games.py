@@ -25,7 +25,10 @@ class EpicGame:
     @classmethod
     def from_json(cls, json_data: dict[str, Any]) -> EpicGame:
         """Build a game from the json data"""
-        url = json_data["catalogNs"]["mappings"][0]["pageSlug"]
+        try:
+            url = json_data["catalogNs"]["mappings"][0]["pageSlug"]
+        except IndexError:
+            url = json_data["productSlug"]
         return cls(
             title=json_data["title"],
             url=f"https://launcher.store.epicgames.com/en-US/p/{url}",
@@ -35,7 +38,7 @@ class EpicGame:
 
     def valid(self) -> bool:
         """Check that a game is valid"""
-        if self.promo is None:
+        if self.promo is None or not self.url:
             return False
         today = datetime.now()
         start = datetime.strptime(self.promo[0].split("T")[0], "%Y-%m-%d")

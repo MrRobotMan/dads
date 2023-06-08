@@ -289,8 +289,8 @@ def main() -> None:
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
-        if (today := dt.datetime.now()).weekday() == 3 and 7 <= today.hour <= 20:
-            # is it Thursday at 7:00 am?
+        if (today := dt.datetime.now()).weekday() == 3 and 8 <= today.hour <= 20:
+            # is it Thursday at 8:00 am?
             if (
                 game_night.last_game_night_announced != today.date()
                 and game_night.game_night_channel is not None
