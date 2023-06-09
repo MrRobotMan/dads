@@ -274,6 +274,7 @@ def main() -> None:
             return False
 
         if after.display_name != before.display_name:
+            await users.name_change(before)
             await users.name_change(after)
 
         now = dt.datetime.utcnow()
