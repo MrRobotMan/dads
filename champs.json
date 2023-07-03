@@ -213,6 +213,9 @@
   "Orianna": [
     "Mid"
   ],
+  "Ornn": [
+    "Baron"
+  ],
   "Pantheon": [
     "Baron",
     "Jungle",
@@ -271,6 +274,10 @@
   "Soraka": [
     "Support"
   ],
+  "Swain": [
+    "Mid",
+    "Support"
+  ],
   "Teemo": [
     "Baron",
     "Mid"
@@ -309,6 +316,10 @@
     "Mid"
   ],
   "Vi": [
+    "Jungle"
+  ],
+  "Volibear": [
+    "Baron",
     "Jungle"
   ],
   "Warwick": [

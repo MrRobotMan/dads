@@ -334,7 +334,7 @@ def main() -> None:
             else:
                 game_night.mission_accomplished()
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=1)
     async def epic_games(new_games_channel: discord.channel.TextChannel) -> None:
         """Message new games chat with the Epic games of the week."""
         current = list(epic_free_games())
