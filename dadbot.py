@@ -27,7 +27,7 @@ from paths import GAMES, INI, MIST, NAMES, PROJ_PATH, TIMEOUTS
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
-
+DISTABLED = True
 
 HANDLER = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
@@ -324,6 +324,8 @@ def main() -> None:
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
+        if DISTABLED:
+            return
         if (today := dt.datetime.now()).weekday() == 3 and 8 <= today.hour <= 20:
             # is it Thursday at 8:00 am?
             if (
@@ -337,6 +339,8 @@ def main() -> None:
     @tasks.loop(minutes=1)
     async def epic_games(new_games_channel: discord.channel.TextChannel) -> None:
         """Message new games chat with the Epic games of the week."""
+        if DISTABLED:
+            return
         current = list(epic_free_games())
         with GAMES.open("r", encoding="utf8") as fp:
             last = json.load(fp)

@@ -76,6 +76,9 @@
   "Ezreal": [
     "Dragon"
   ],
+  "Fiddlesticks": [
+    "Jungle"
+  ],
   "Fiora": [
     "Baron"
   ],
@@ -101,6 +104,9 @@
   ],
   "Gwen": [
     "Baron",
+    "Jungle"
+  ],
+  "Hecarim": [
     "Jungle"
   ],
   "Irelia": [
@@ -271,6 +277,9 @@
     "Baron",
     "Jungle"
   ],
+  "Sivir": [
+    "Dragon"
+  ],
   "Sona": [
     "Support"
   ],
@@ -280,6 +289,13 @@
   "Swain": [
     "Mid",
     "Support"
+  ],
+  "Syndra": [
+    "Mid"
+  ],
+  "Talon": [
+    "Jungle",
+    "Mid"
   ],
   "Teemo": [
     "Baron",
@@ -365,6 +381,10 @@
     "Mid"
   ],
   "Zoe": [
+    "Mid",
+    "Support"
+  ],
+  "Zyra": [
     "Mid",
     "Support"
   ]
