@@ -324,7 +324,8 @@ def main() -> None:
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
-        return
+        if DISABLED:
+            return
         if (today := dt.datetime.now()).weekday() == 3 and 8 <= today.hour <= 20:
             # is it Thursday at 8:00 am?
             if (
