@@ -27,7 +27,7 @@ from paths import GAMES, INI, MIST, NAMES, PROJ_PATH, TIMEOUTS
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
-DISTABLED = True
+DISABLED = True
 
 HANDLER = logging.FileHandler(
     filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
@@ -118,8 +118,8 @@ def main() -> None:
         game_night.announcements_channel = announcements_channel
         game_night.game_night_channel = game_night_channel
         game_night.announcer = bot.get_user(game_night_host_id)
-        did_pyn_announce_gamenight.start()
-        epic_games.start(new_games_channel)
+        # did_pyn_announce_gamenight.start()
+        # epic_games.start(new_games_channel)
 
     @bot.command(name="team", help="Responds with a random team")
     async def on_message(ctx: commands.Context[commands.Bot]) -> None:
@@ -324,8 +324,7 @@ def main() -> None:
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
-        if DISTABLED:
-            return
+        return
         if (today := dt.datetime.now()).weekday() == 3 and 8 <= today.hour <= 20:
             # is it Thursday at 8:00 am?
             if (
@@ -339,7 +338,7 @@ def main() -> None:
     @tasks.loop(minutes=1)
     async def epic_games(new_games_channel: discord.channel.TextChannel) -> None:
         """Message new games chat with the Epic games of the week."""
-        if DISTABLED:
+        if DISABLED:
             return
         current = list(epic_free_games())
         with GAMES.open("r", encoding="utf8") as fp:
