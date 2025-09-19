@@ -1,4 +1,5 @@
 .venv/
+.venv.bak
 .vscode/
 __pycache__/
 env.ini

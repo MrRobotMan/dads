@@ -1,5 +1,6 @@
 """
 Bot for DADS discord server.
+
 Name: dadbot
 Purpose: Have fun and troll folks.
 Tasks so far:
@@ -9,41 +10,43 @@ Tasks so far:
     Gently remind PYN to announce gamenight
 """
 
+from __future__ import annotations
+
 import configparser
+from dataclasses import dataclass, field
 import datetime as dt
 import json
 import logging
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, ClassVar
 
 import discord
 from discord.ext import commands, tasks
 
-import teambuilder
-import users
 from games import epic_free_games
 from paths import GAMES, INI, MIST, NAMES, PROJ_PATH, TIMEOUTS
+import teambuilder
+import users
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 TIMEOUT = dict[str, tuple[int, int, str | bool, int]]
 MISTBORN = dt.timedelta(minutes=10)
 DISABLED = True
 
-HANDLER = logging.FileHandler(
-    filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w"
-)
+HANDLER = logging.FileHandler(filename=PROJ_PATH / "discord.log", encoding="utf-8", mode="w")
 
 
 @dataclass(slots=True)
 class GameNight:
     """Object to track the game night announcements."""
 
-    announcer: Optional[discord.User] = None
-    announcements_channel: Optional[discord.TextChannel] = None
-    game_night_channel: Optional[discord.TextChannel] = None
-    last_game_night_announced: Optional[dt.date] = None
+    announcer: discord.User | None = None
+    announcements_channel: discord.TextChannel | None = None
+    game_night_channel: discord.TextChannel | None = None
+    last_game_night_announced: dt.date | None = None
     message_index: int = field(init=False, default=0)
-    messages = (
+    messages: ClassVar = (
         "Did you know it's Thursday{}?",
         "Still no Thursday announcement{}...",
         "Hello{}? Thursday",
@@ -69,21 +72,16 @@ class GameNight:
         """Message the gamenight host with the next message."""
         message = self.messages[self.message_index]
         self.message_index = (self.message_index + 1) % len(self.messages)
-        if self.announcer is not None:
-            mention = f" {self.announcer.mention}"
-        else:
-            mention = ""
+        mention = f" {self.announcer.mention}" if self.announcer is not None else ""
         return message.format(mention)
 
     def mission_accomplished(self) -> None:
-        """Reset the message index"""
+        """Reset the message index."""
         self.message_index = 0
 
 
 def main() -> None:
-    """
-    The main bot. Has commands for team, teams, and chaos.
-    """
+    """The main bot. Has commands for team, teams, and chaos."""
     config = configparser.ConfigParser()
     config.read(INI)
     bot_token = config["DISCORD"]["BOT_TOKEN"]
@@ -159,9 +157,7 @@ def main() -> None:
         name="jailtime",
         help="Get the total amount of time the user has spent in timeout.",
     )
-    async def on_message(
-        ctx: commands.Context[commands.Bot], *args: discord.Member
-    ) -> None:
+    async def on_message(ctx: commands.Context[commands.Bot], *args: discord.Member) -> None:
         """
         How long the supplied users have been in jail.
         """
@@ -176,10 +172,8 @@ def main() -> None:
                 found = data.get(user.name, (0, 0, False, user.id))
                 timeouts, total_time = users.get_user_timeout_data(now, found)
                 response.append(
-                    (
-                        f"{user.mention} has been in timeout {timeouts} times "
-                        f"for {seconds_to_hms(total_time)}."
-                    )
+                    f"{user.mention} has been in timeout {timeouts} times "
+                    f"for {seconds_to_hms(total_time)}."
                 )
         elif data != {}:
             # Show the leaderboard
@@ -223,9 +217,7 @@ def main() -> None:
         for idx, (user_id, mentions) in enumerate(leaderboard[:10], start=1):
             res.append(f"{idx:2}: {mentions:<4} | {users.get_user(guild, user_id)}")
         if barnmol not in (leader[0] for leader in leaderboard[:10]):
-            res.append(
-                f"\nHonorary Mention: {users.get_user(guild, barnmol)} with {data[barnmol]}"
-            )
+            res.append(f"\nHonorary Mention: {users.get_user(guild, barnmol)} with {data[barnmol]}")
         res.append("```")
         await ctx.send("\n".join(res))
 
@@ -248,9 +240,7 @@ def main() -> None:
                 await ctx.message.channel.send("Task already running.")
 
     @bot.command(name="history")
-    async def user_history(
-        ctx: commands.Context[commands.Bot], user: discord.Member
-    ) -> None:
+    async def user_history(ctx: commands.Context[commands.Bot], user: discord.Member) -> None:
         """
         Message the channel with the requested user's history.
         """
@@ -277,7 +267,7 @@ def main() -> None:
             await users.name_change(before)
             await users.name_change(after)
 
-        now = dt.datetime.utcnow()
+        now = dt.datetime.now(dt.timezone.utc)
         before_timeout = check_for_timeout(before.roles)
         after_timeout = check_for_timeout(after.roles)
         if before_timeout == after_timeout:
@@ -302,9 +292,9 @@ def main() -> None:
         if cnt := message.count("sanderson") + message.count("mistborn"):
             mentions = await users.update_mistborn_leaderboard(msg.author, cnt)
             last_response = sanderson_messages.get(msg.channel.id)
-            if (
-                last_response := sanderson_messages.get(msg.channel.id)
-            ) and dt.datetime.now(tz=dt.timezone.utc) - last_response < MISTBORN:
+            if (last_response := sanderson_messages.get(msg.channel.id)) and dt.datetime.now(
+                tz=dt.timezone.utc
+            ) - last_response < MISTBORN:
                 return
             response = await msg.channel.send(
                 f"{msg.author.display_name} has mentioned Mistborn or Sanderson {mentions} time(s)."
@@ -324,7 +314,7 @@ def main() -> None:
     @tasks.loop(minutes=43)
     async def did_pyn_announce_gamenight() -> None:
         """Ping PYN until he announces gamenight."""
-         return
+        return
         if (today := dt.datetime.now()).weekday() == 3 and 8 <= today.hour <= 20:
             # is it Thursday at 8:00 am?
             if (
